@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -12,6 +13,7 @@ from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, Use
 class AuthLoginUser(ObtainAuthToken):
     permission_classes = [AllowAny,]
 
+    @swagger_auto_schema(request_body=AuthTokenSerializer, responses={200: OutputUserLoginSerializer()})
     def post(self, request, *args, **kwargs):
         serializer = AuthTokenSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -20,7 +22,7 @@ class AuthLoginUser(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
 
         output_serializer = OutputUserLoginSerializer(instance=user, context={'token': token.key})
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -28,6 +30,7 @@ class UserRegistrationView(generics.CreateAPIView):
     authentication_classes = []
     serializer_class = UserRegisterSerializer
 
+    @swagger_auto_schema(request_body=UserRegisterSerializer, responses={201: UserRegisterSerializer()})
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'drf_yasg',
 
     'user.apps.UserConfig'
 ]
@@ -107,6 +108,16 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES':
         ('rest_framework.permissions.IsAuthenticatedOrReadOnly',)
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
 }
 
 
