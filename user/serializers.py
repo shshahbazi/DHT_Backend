@@ -26,8 +26,22 @@ class AuthTokenSerializer(serializers.ModelSerializer):
             msg = 'Must include "email" and "password".'
             raise exceptions.ValidationError(msg)
 
+        if not user.is_verified:
+            raise exceptions.ValidationError("This account is not verified.")
+
         data['user'] = user
         return data
+
+
+class OutputUserLoginSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'first_name', 'last_name', 'email', 'token']
+
+    def get_token(self, obj):
+        return self.context.get('token')
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
