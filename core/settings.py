@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
 
-    'user.apps.UserConfig'
+    'user.apps.UserConfig',
+    'habit.apps.HabitConfig',
+    'common.apps.CommonConfig'
 ]
 
 MIDDLEWARE = [
