@@ -43,6 +43,9 @@ class HabitInstance(BaseModel):
     def __str__(self):
         return f'{self.user} - {self.habit} in {self.reminder_time}'
 
+    def is_completed(self):
+        return self.status == self.STATUS.DONE
+
 
 class WorkSession(BaseModel):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
