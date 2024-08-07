@@ -24,8 +24,6 @@ class WorkSessionStartApi(APIView):
         serializer = WorkSessionStartSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        print(serializer.validated_data)
-
         work_session = WorkSession.objects.create(user=user, start_time=serializer.validated_data['start_time'])
 
         tasks = RecurringHabit.objects.filter(Q(user_creator=None) | Q(user_creator=user))
@@ -43,7 +41,7 @@ class WorkSessionEndApi(APIView):
         end_time = timezone.now()
         user = request.user
 
-        work_session = WorkSession.objects.filter(user=user).first()
+        work_session = WorkSession.objects.filter(user=user, end_time=None).first()
         if work_session:
             work_session.end_time = end_time
             work_session.save()
