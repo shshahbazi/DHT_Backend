@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
+from .tasks import send_reminder_task
 
 from habit.models import RecurringHabit, HabitInstance
 
@@ -16,4 +17,6 @@ def create_periodic_task_instance(user, task):
         object_id=task.id,
         reminder_time=reminder_time
     )
+
+    send_reminder_task.apply_async((habit_instance.id,), eta=reminder_time)
     return habit_instance
