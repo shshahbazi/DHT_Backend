@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.core import exceptions
 
-from .models import HabitInstance
+from .models import HabitInstance, WorkSession
 from django.core.mail import EmailMessage
 from datetime import timedelta
 
@@ -15,7 +15,8 @@ def send_reminder_task(habit_instance_id):
         if habit_instance.is_completed():
             return
 
-        send_habit_notification(habit_instance)
+        if WorkSession.objects.filter(user=habit_instance.user, end_time=None).exists():
+            send_habit_notification(habit_instance)
 
     except HabitInstance.DoesNotExist:
         pass

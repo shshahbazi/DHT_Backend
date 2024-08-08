@@ -48,3 +48,6 @@ class WorkSessionEndApi(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+
+class EndHabitInstanceApi(APIView):
+    pass
