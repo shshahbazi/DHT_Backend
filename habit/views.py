@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from habit.models import WorkSession, RecurringHabit
-from habit.serializers import WorkSessionStartSerializer
+from habit.models import WorkSession, RecurringHabit, HabitInstance
+from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer
 from habit.utils import create_periodic_task_instance
 
 
@@ -50,4 +50,16 @@ class WorkSessionEndApi(APIView):
 
 
 class EndHabitInstanceApi(APIView):
-    pass
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=ChangeHabitInstanceStatusSerializer(), responses={200: HabitInstanceSerializer()})
+    def put(self, request, habit_instance_id):
+        habit_instance = HabitInstance.objects.get(id=habit_instance_id)
+        serializer = ChangeHabitInstanceStatusSerializer(instance=habit_instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        output_serializer = HabitInstanceSerializer(instance=habit_instance)
+
+        return Response(output_serializer.data, status=status.HTTP_200_OK)

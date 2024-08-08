@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 
-from habit.models import WorkSession
+from habit.models import WorkSession, HabitInstance
 
 
 class WorkSessionStartSerializer(serializers.Serializer):
@@ -19,15 +19,19 @@ class WorkSessionStartSerializer(serializers.Serializer):
         return attrs
 
 
-# class WorkSessionEndSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = WorkSession
-#         fields = ['end_time']
-
-
 class WorkSessionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkSession
         fields = '__all__'
 
 
+class ChangeHabitInstanceStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HabitInstance
+        fields = ['status']
+
+
+class HabitInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HabitInstance
+        fields = '__all__'
