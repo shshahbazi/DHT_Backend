@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 
-from habit.models import WorkSession, HabitInstance
+from habit.models import WorkSession, HabitInstance, SingleHabit, RecurringHabit
 
 
 class WorkSessionStartSerializer(serializers.Serializer):
@@ -31,7 +31,30 @@ class ChangeHabitInstanceStatusSerializer(serializers.ModelSerializer):
         fields = ['status']
 
 
+class SingleHabitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SingleHabit
+        fields = '__all__'
+
+
+class RecurringHabitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecurringHabit
+        fields = '__all__'
+
+
 class HabitInstanceSerializer(serializers.ModelSerializer):
+    habit_detail = serializers.SerializerMethodField()
+    content_type_name = serializers.CharField(source='content_type.model')
+
     class Meta:
         model = HabitInstance
-        fields = '__all__'
+        exclude = ['object_id', 'content_type']
+
+    def get_habit_detail(self, obj):
+        model_class = obj.content_type.model_class()
+        if model_class == SingleHabit:
+            return SingleHabitSerializer(obj.habit).data
+        elif model_class == RecurringHabit:
+            return RecurringHabitSerializer(obj.habit).data
+        return None
