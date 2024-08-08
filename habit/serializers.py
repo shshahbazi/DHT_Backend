@@ -32,6 +32,11 @@ class ChangeHabitInstanceStatusSerializer(serializers.ModelSerializer):
         fields = ['status']
 
     def save(self, **kwargs):
+        instance = self.instance
+
+        if 'status' in self.validated_data:
+            instance.ended_at = timezone.now()
+
         instance = super().save(**kwargs)
 
         if isinstance(instance.habit, RecurringHabit):
