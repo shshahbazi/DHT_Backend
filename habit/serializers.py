@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers, exceptions
 
 from habit.models import WorkSession, HabitInstance, SingleHabit, RecurringHabit
+from habit.utils import create_periodic_task_instance
 
 
 class WorkSessionStartSerializer(serializers.Serializer):
@@ -29,6 +30,14 @@ class ChangeHabitInstanceStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = HabitInstance
         fields = ['status']
+
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+
+        if isinstance(instance.habit, RecurringHabit):
+            create_periodic_task_instance(instance.user, instance.habit)
+
+        return instance
 
 
 class SingleHabitSerializer(serializers.ModelSerializer):
