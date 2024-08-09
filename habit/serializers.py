@@ -49,6 +49,15 @@ class SingleHabitSerializer(serializers.ModelSerializer):
     class Meta:
         model = SingleHabit
         fields = '__all__'
+        read_only_fields = ['user_creator']
+
+    def save(self, **kwargs):
+        user_creator = self.context['user']
+
+        self.validated_data['user_creator'] = user_creator
+        instance = super().save(**kwargs)
+
+        return instance
 
 
 class RecurringHabitSerializer(serializers.ModelSerializer):

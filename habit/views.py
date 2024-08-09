@@ -7,8 +7,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from habit.models import WorkSession, RecurringHabit, HabitInstance
-from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer
-from habit.utils import create_periodic_task_instance
+from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
+    SingleHabitSerializer
+from habit.utils import create_periodic_task_instance, create_single_task_instance
 
 
 class WorkSessionStartApi(APIView):
@@ -63,3 +64,17 @@ class EndHabitInstanceApi(APIView):
         output_serializer = HabitInstanceSerializer(instance=habit_instance)
 
         return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateSingleHabitApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=SingleHabitSerializer, responses={201: SingleHabitSerializer()})
+    def post(self, request):
+        serializer = SingleHabitSerializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+
+        new_habit = serializer.save()
+        create_single_task_instance(request.user, new_habit)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+

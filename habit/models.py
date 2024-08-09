@@ -17,7 +17,7 @@ class Habit(BaseModel):
 
 
 class SingleHabit(Habit):
-    reminder_time = models.DateTimeField
+    reminder_time = models.DateTimeField()
 
 
 class RecurringHabit(Habit):
