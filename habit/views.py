@@ -120,3 +120,10 @@ class SingleHabitDetailApi(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(responses={200: None})
+    def delete(self, request, habit_id):
+        # TODO: Check what should be happened to instances of that habit
+        habit = SingleHabit.objects.get(id=habit_id)
+        habit.delete()
+        return Response(status=status.HTTP_200_OK)
+
