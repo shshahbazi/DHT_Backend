@@ -103,3 +103,10 @@ class RecurringHabitDetailApi(APIView):
         serializer = RecurringHabitSerializer(instance=habit)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    @swagger_auto_schema(responses={200: None})
+    def delete(self, request, habit_id):
+        habit = RecurringHabit.objects.get(id=habit_id)
+        habit.delete()
+        return Response(status=status.HTTP_200_OK)
