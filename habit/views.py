@@ -94,3 +94,12 @@ class CreateRecurringHabitApi(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+class RecurringHabitDetailApi(APIView):
+
+    @swagger_auto_schema(responses={200: RecurringHabitSerializer()})
+    def get(self, request, habit_id):
+        habit = RecurringHabit.objects.get(id=habit_id)
+        serializer = RecurringHabitSerializer(instance=habit)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
