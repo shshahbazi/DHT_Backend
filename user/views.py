@@ -3,7 +3,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -40,3 +40,12 @@ class VerifyOTPLogin(ObtainAuthToken):
 
         output_serializer = OutputUserLoginSerializer(instance=user, context={'token': token.key})
         return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+
+class LogOutApi(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    @swagger_auto_schema(responses={200: None})
+    def get(self, request):
+        request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)
