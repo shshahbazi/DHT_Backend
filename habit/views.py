@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from habit.models import WorkSession, RecurringHabit, HabitInstance
+from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     SingleHabitSerializer, RecurringHabitSerializer
 from habit.utils import create_periodic_task_instance, create_single_task_instance
@@ -104,9 +104,19 @@ class RecurringHabitDetailApi(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
     @swagger_auto_schema(responses={200: None})
     def delete(self, request, habit_id):
         habit = RecurringHabit.objects.get(id=habit_id)
         habit.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class SingleHabitDetailApi(APIView):
+
+    @swagger_auto_schema(responses={200: SingleHabitSerializer()})
+    def get(self, request, habit_id):
+        habit = SingleHabit.objects.get(id=habit_id)
+        serializer = SingleHabitSerializer(instance=habit)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
