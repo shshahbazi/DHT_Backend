@@ -34,6 +34,7 @@ class HabitInstance(BaseModel):
         DONE = "DONE", "Done"
         PENDING = "PENDING", "Pending"
         UNDONE = "UNDONE", "Undone"
+        NOTIFIED = "NOTIFIED", "Notified"
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

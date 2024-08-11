@@ -26,7 +26,10 @@ def create_periodic_task_instance(user, task):
         reminder_time=reminder_time
     )
 
-    send_reminder_task.apply_async((habit_instance.id,), eta=reminder_time)
+    celery_task = send_reminder_task.apply_async((habit_instance.id,), eta=reminder_time)
+    habit_instance.celery_task_id = celery_task.id
+    habit_instance.save()
+
     return habit_instance
 
 

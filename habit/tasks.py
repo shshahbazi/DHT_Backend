@@ -17,6 +17,8 @@ def send_reminder_task(habit_instance_id):
 
         if WorkSession.objects.filter(user=habit_instance.user, end_time=None).exists():
             send_habit_notification(habit_instance)
+            habit_instance.status = HabitInstance.STATUS.NOTIFIED
+            habit_instance.save()
 
     except HabitInstance.DoesNotExist:
         pass
