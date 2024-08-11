@@ -55,9 +55,7 @@ def update_single_habit_instance_reminder(habit):
     if not isinstance(habit, SingleHabit):
         return
 
-    habit_instance = HabitInstance.objects.filter(
-        content_type=ContentType.objects.get_for_model(SingleHabit), object_id=habit.id
-    ).first()
+    habit_instance = habit.instances.all().first()
 
     with transaction.atomic():
         try:
@@ -89,9 +87,7 @@ def delete_single_habit_instance(habit):
     if not isinstance(habit, SingleHabit):
         return
 
-    habit_instance = HabitInstance.objects.filter(
-        content_type=ContentType.objects.get_for_model(SingleHabit), object_id=habit.id
-    ).first()
+    habit_instance = habit.instances.all().first()
 
     with transaction.atomic():
         try:

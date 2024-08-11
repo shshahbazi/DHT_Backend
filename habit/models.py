@@ -1,6 +1,8 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
+from celery.result import AsyncResult
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.core import exceptions
+from django.db import models, transaction
 
 from common.models import BaseModel
 from user.models import CustomUser
@@ -18,11 +20,13 @@ class Habit(BaseModel):
 
 class SingleHabit(Habit):
     reminder_time = models.DateTimeField()
+    instances = GenericRelation('HabitInstance', related_query_name='single_habits')
 
 
 class RecurringHabit(Habit):
     recurrence_seconds = models.IntegerField()
     duration_seconds = models.IntegerField(default=0)
+    instances = GenericRelation('HabitInstance', related_query_name='recurring_habits')
 
 
 class HabitInstance(BaseModel):
