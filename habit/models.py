@@ -39,6 +39,7 @@ class HabitInstance(BaseModel):
     status = models.CharField(max_length=200, choices=STATUS.choices, default=STATUS.PENDING)
     reminder_time = models.DateTimeField()
     ended_at = models.DateTimeField(blank=True, null=True)
+    celery_task_id = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return f'{self.user} - {self.habit} in {self.reminder_time}'

@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     SingleHabitSerializer, RecurringHabitSerializer
-from habit.utils import create_periodic_task_instance, create_single_task_instance
+from habit.utils import create_periodic_task_instance, create_single_task_instance, \
+    update_single_habit_instance_reminder, delete_single_habit_instance
 
 
 class WorkSessionStartApi(APIView):
@@ -137,8 +138,8 @@ class SingleHabitDetailApi(APIView):
 
     @swagger_auto_schema(responses={200: None}, tags=['SingleHabit'])
     def delete(self, request, habit_id):
-        # TODO: Check what should be happened to instances of that habit
         habit = SingleHabit.objects.get(id=habit_id)
+        delete_single_habit_instance(habit)
         habit.delete()
         return Response(status=status.HTTP_200_OK)
 
@@ -147,10 +148,12 @@ class SingleHabitDetailApi(APIView):
     )
     def put(self, request, habit_id):
         habit = SingleHabit.objects.get(id=habit_id)
-        # TODO: what happend to send reminder if time reminder changed?
+
         serializer = SingleHabitSerializer(instance=habit, data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
 
-        serializer.save()
+        new_habit = serializer.save()
+        update_single_habit_instance_reminder(new_habit)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
