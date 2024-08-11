@@ -10,7 +10,7 @@ from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     SingleHabitSerializer, RecurringHabitSerializer
 from habit.utils import create_periodic_task_instance, create_single_task_instance, \
-    update_single_habit_instance_reminder, delete_single_habit_instance
+    update_single_habit_instance_reminder, delete_single_habit_instance, delete_recurring_habit_instances
 
 
 class WorkSessionStartApi(APIView):
@@ -112,6 +112,7 @@ class RecurringHabitDetailApi(APIView):
     @swagger_auto_schema(responses={200: None}, tags=['RecurringHabit'])
     def delete(self, request, habit_id):
         habit = RecurringHabit.objects.get(id=habit_id)
+        delete_recurring_habit_instances(habit)
         habit.delete()
         return Response(status=status.HTTP_200_OK)
 
@@ -119,6 +120,7 @@ class RecurringHabitDetailApi(APIView):
         request_body=RecurringHabitSerializer, responses={200: RecurringHabitSerializer()}, tags=['RecurringHabit']
     )
     def put(self, request, habit_id):
+        # TODO: should pending instances change?
         habit = RecurringHabit.objects.get(id=habit_id)
         serializer = RecurringHabitSerializer(instance=habit, data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)

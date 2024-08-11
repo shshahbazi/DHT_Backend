@@ -103,3 +103,22 @@ def delete_single_habit_instance(habit):
 
         habit_instance.delete()
 
+
+def delete_recurring_habit_instances(habit):
+    if not isinstance(habit, RecurringHabit):
+        return
+
+    habit_instances = habit.instances.all().filter(status=HabitInstance.STATUS.PENDING)
+
+    with transaction.atomic():
+        try:
+            for habit_instance in habit_instances:
+                if habit_instance.celery_task_id:
+                    task_result = AsyncResult(habit_instance.celery_task_id)
+                    task_result.revoke(terminate=True)
+
+        except Exception as e:
+            raise exceptions.BadRequest(f"Failed to revoke previous task: {str(e)}")
+
+    habit_instances.delete()
+
