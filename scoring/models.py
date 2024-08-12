@@ -23,3 +23,9 @@ class Reward(models.Model):
 
     def is_unlocked(self, user):
         return user.score.score >= self.required_score
+
+
+class UserReward(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='rewards')
+    reward = models.ForeignKey(Reward, on_delete=models.CASCADE, related_name='users')
+    unlocked_at = models.DateTimeField(auto_now_add=True)
