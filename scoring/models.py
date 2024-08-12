@@ -14,3 +14,12 @@ class UserScore(models.Model):
     def sub_points(self, points):
         self.score = max(self.score - points, 0)
         self.save()
+
+
+class Reward(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    required_score = models.PositiveIntegerField()
+
+    def is_unlocked(self, user):
+        return user.score.score >= self.required_score
