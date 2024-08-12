@@ -4,7 +4,7 @@ from user.models import CustomUser
 
 
 class UserScore(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     score = models.PositiveIntegerField(default=0)
 
     def add_points(self, points):

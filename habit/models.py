@@ -13,6 +13,7 @@ class Habit(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    score = models.PositiveIntegerField(default=1)
 
     class Meta:
         abstract = True
@@ -40,7 +41,6 @@ class HabitInstance(BaseModel):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     habit = GenericForeignKey('content_type', 'object_id')
-    # habit_type = models.CharField(max_length=200)
     status = models.CharField(max_length=200, choices=STATUS.choices, default=STATUS.PENDING)
     reminder_time = models.DateTimeField()
     ended_at = models.DateTimeField(blank=True, null=True)
