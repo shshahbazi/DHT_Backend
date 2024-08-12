@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کد ورود به سیستم دوست</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            color: #333;
+            direction: rtl; /* اضافه کردن direction در body */
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            font-size: 24px;
+            color: #392661;
+            margin-bottom: 20px;
+        }
+        .otp-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        .message {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            ورود به سیستم دوست
+        </div>
+        <div class="message">
+            سلام دوست عزیز!
+            <br>
+            کد یکبار مصرف شما برای ورود به سیستم دوست به شرح زیر است:
+        </div>
+        <div class="otp-code">
+            {{ otp_code }}
+        </div>
+        <div class="message">
+            لطفاً این کد را در صفحه ورود وارد کنید. این کد تا ۱۰ دقیقه معتبر است.
+        </div>
+        <div class="footer">
+            اگر شما این درخواست را انجام نداده‌اید، لطفاً این ایمیل را نادیده بگیرید.
+            <br>
+            با تشکر از شما،
+            <br>
+            تیم دوست
+        </div>
+    </div>
+</body>
+</html>
