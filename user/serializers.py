@@ -4,7 +4,8 @@ import random
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 
-from user.models import CustomUser
+from scoring.serializers import UserScoreOutputSerializer
+from user.models import CustomUser, Profile
 
 
 class LoginSerializer(serializers.Serializer):
@@ -70,4 +71,13 @@ class OutputUserLoginSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
+        fields = '__all__'
+
+
+class OutputProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email', read_only=True)
+    score = serializers.IntegerField(source='user.userscore.score', read_only=True)
+
+    class Meta:
+        model = Profile
         fields = '__all__'

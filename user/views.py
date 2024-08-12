@@ -7,8 +7,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from user.models import CustomUser
-from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, LoginSerializer
+from user.models import CustomUser, Profile
+from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, LoginSerializer, OutputProfileSerializer
 from user.utils import send_otp
 
 
@@ -49,3 +49,13 @@ class LogOutApi(APIView):
     def get(self, request):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class GetProfileDetails(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    @swagger_auto_schema(responses={200: OutputProfileSerializer()})
+    def get(self, request):
+        profile = Profile.objects.get(user=request.user)
+        serializer = OutputProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
