@@ -15,7 +15,7 @@ from user.utils import send_otp
 class AuthLoginUser(APIView):
     permission_classes = [AllowAny, ]
 
-    @swagger_auto_schema(request_body=LoginSerializer(), responses={200: None})
+    @swagger_auto_schema(request_body=LoginSerializer(), responses={200: None}, tags=['Auth'])
     def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -30,7 +30,9 @@ class AuthLoginUser(APIView):
 class VerifyOTPLogin(ObtainAuthToken):
     permission_classes = [AllowAny, ]
 
-    @swagger_auto_schema(request_body=AuthTokenSerializer(), responses={200: OutputUserLoginSerializer()})
+    @swagger_auto_schema(
+        request_body=AuthTokenSerializer(), responses={200: OutputUserLoginSerializer()}, tags=['Auth']
+    )
     def post(self, request, *args, **kwargs):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -45,7 +47,7 @@ class VerifyOTPLogin(ObtainAuthToken):
 class LogOutApi(APIView):
     permission_classes = [IsAuthenticated, ]
 
-    @swagger_auto_schema(responses={200: None})
+    @swagger_auto_schema(responses={200: None}, tags=['Auth'])
     def get(self, request):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
@@ -54,7 +56,7 @@ class LogOutApi(APIView):
 class GetProfileDetails(APIView):
     permission_classes = [IsAuthenticated, ]
 
-    @swagger_auto_schema(responses={200: OutputProfileSerializer()})
+    @swagger_auto_schema(responses={200: OutputProfileSerializer()}, tags=['Profile'])
     def get(self, request):
         profile = Profile.objects.get(user=request.user)
         serializer = OutputProfileSerializer(profile)

@@ -55,7 +55,11 @@ class WorkSessionEndApi(APIView):
 class EndHabitInstanceApi(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(request_body=ChangeHabitInstanceStatusSerializer(), responses={200: HabitInstanceSerializer()})
+    @swagger_auto_schema(
+        request_body=ChangeHabitInstanceStatusSerializer(),
+        responses={200: HabitInstanceSerializer()},
+        tags=['HabitInstance']
+    )
     def put(self, request, habit_instance_id):
         habit_instance = HabitInstance.objects.get(id=habit_instance_id)
         serializer = ChangeHabitInstanceStatusSerializer(instance=habit_instance, data=request.data)
