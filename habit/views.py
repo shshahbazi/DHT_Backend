@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.permissions import IsSingleHabitCreator, IsRecurringHabitCreator
 from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     SingleHabitSerializer, RecurringHabitSerializer
@@ -101,6 +102,7 @@ class CreateRecurringHabitApi(APIView):
 
 
 class RecurringHabitDetailApi(APIView):
+    permission_classes = [IsAuthenticated, IsRecurringHabitCreator]
 
     @swagger_auto_schema(responses={200: RecurringHabitSerializer()}, tags=['RecurringHabit'])
     def get(self, request, habit_id):
@@ -130,6 +132,7 @@ class RecurringHabitDetailApi(APIView):
 
 
 class SingleHabitDetailApi(APIView):
+    permission_classes = [IsAuthenticated, IsSingleHabitCreator]
 
     @swagger_auto_schema(responses={200: SingleHabitSerializer()}, tags=['SingleHabit'])
     def get(self, request, habit_id):
