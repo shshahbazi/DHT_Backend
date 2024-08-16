@@ -11,6 +11,16 @@ from user.models import CustomUser, Profile
 from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, LoginSerializer, OutputProfileSerializer
 from user.utils import send_otp
 
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+
+
+class GitHubLogin(SocialLoginView):
+    adapter_class = GitHubOAuth2Adapter
+    callback_url = 'http://127.0.0.1:8000/callback'
+    client_class = OAuth2Client
+
 
 class AuthLoginUser(APIView):
     permission_classes = [AllowAny, ]

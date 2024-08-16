@@ -20,6 +20,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from user.views import GitHubLogin
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Doost API",
@@ -35,6 +37,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('user.urls')),
     path('habits/', include('habit.urls')),
+    path('github/', GitHubLogin.as_view(), name='github-login'),
+    path('accounts/', include('allauth.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
