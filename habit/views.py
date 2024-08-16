@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from common.permissions import IsSingleHabitCreator, IsRecurringHabitCreator
 from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
-    SingleHabitSerializer, RecurringHabitSerializer
+    SingleHabitSerializer, RecurringHabitSerializer, HabitListSerializer
 from habit.utils import create_periodic_task_instance, create_single_task_instance, \
     update_single_habit_instance_reminder, delete_single_habit_instance, delete_recurring_habit_instances
 
@@ -166,3 +166,19 @@ class SingleHabitDetailApi(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class UserHabitsListApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(responses={200: HabitListSerializer(many=True)})
+    def get(self, request):
+        user = request.user
+
+        single_habits = SingleHabit.objects.filter(user_creator__in=[user, None])
+        recurring_habits = RecurringHabit.objects.filter(user_creator__in=[user, None])
+
+        habits = list(single_habits) + list(recurring_habits)
+
+        serializer = HabitListSerializer(habits, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

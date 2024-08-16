@@ -90,3 +90,16 @@ class HabitInstanceSerializer(serializers.ModelSerializer):
         elif model_class == RecurringHabit:
             return RecurringHabitSerializer(obj.habit).data
         return None
+
+
+class HabitListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField(max_length=200)
+    is_active = serializers.BooleanField()
+    habit_type = serializers.SerializerMethodField()
+
+    def get_habit_type(self, obj):
+        if isinstance(obj, SingleHabit):
+            return "single"
+        elif isinstance(obj, RecurringHabit):
+            return "recurring"
