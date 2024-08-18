@@ -45,5 +45,10 @@ class CustomUser(AbstractUser):
         return self.email
     
 
+def upload_to(instance, filename):
+    return 'profile/{filename}'.format(filename=filename)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
+    picture = models.ImageField(upload_to=upload_to, blank=True, null=True)

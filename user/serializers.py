@@ -81,3 +81,9 @@ class OutputProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
+
+
+class ProfileInputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['picture']

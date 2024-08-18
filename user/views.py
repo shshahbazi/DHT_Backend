@@ -3,12 +3,14 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user.models import CustomUser, Profile
-from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, LoginSerializer, OutputProfileSerializer
+from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, LoginSerializer, OutputProfileSerializer, \
+    ProfileInputSerializer
 from user.utils import send_otp
 
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -65,9 +67,38 @@ class LogOutApi(APIView):
 
 class GetProfileDetails(APIView):
     permission_classes = [IsAuthenticated, ]
+    parser_classes = [MultiPartParser]
 
     @swagger_auto_schema(responses={200: OutputProfileSerializer()}, tags=['Profile'])
     def get(self, request):
         profile = Profile.objects.get(user=request.user)
         serializer = OutputProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        request_body=ProfileInputSerializer(), responses={200: OutputProfileSerializer()}, tags=['Profile']
+    )
+    def put(self, request):
+        profile = Profile.objects.get(user=request.user)
+        serializer = ProfileInputSerializer(data=request.data, instance=profile)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        output_serializer = OutputProfileSerializer(serializer.instance, context={'request': request})
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateProfileDetails(APIView):
+
+
+    @swagger_auto_schema(
+        request_body=ProfileInputSerializer(), responses={200: OutputProfileSerializer()}, tags=['Profile']
+    )
+    def put(self, request):
+        serializer = ProfileInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        output_serializer = OutputProfileSerializer(serializer.instance)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
+
