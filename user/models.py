@@ -50,5 +50,5 @@ def upload_to(instance, filename):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
-    picture = models.ImageField(upload_to=upload_to, blank=True, null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    picture = models.FileField(upload_to='profile/', blank=True, null=True)

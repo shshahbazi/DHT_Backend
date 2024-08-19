@@ -1,9 +1,11 @@
+import requests
 from django.contrib.auth.models import User
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from django.core.files.base import ContentFile
 
-from user.models import CustomUser
+from user.models import CustomUser, Profile
 
 
 class SocialAdapter(DefaultSocialAccountAdapter):
@@ -36,3 +38,24 @@ class SocialAdapter(DefaultSocialAccountAdapter):
         # if it does, connect this new social login to the existing user
         if sociallogin.account.extra_data['email']:
             sociallogin.connect(request, user)
+
+    # def populate_user(self, request, sociallogin, data):
+    #     user = sociallogin.user
+    #     print(user)
+    #     profile = Profile.objects.get(user=user)
+    #
+    #     user = super().populate_user(request, sociallogin, data)
+    #
+    #
+    #
+    #     print(profile)
+    # if not profile.picture:
+    #     print("1")
+    #     github_avatar_url = sociallogin.account.extra_data.get('avatar_url')
+    #     if github_avatar_url:
+    #         print("2")
+    #         response = requests.get(github_avatar_url)
+    #         if response.status_code == 200:
+    #             print("3")
+    #             profile.picture.save(f"{u.username}_github_avatar.jpg", ContentFile(response.content))
+    #             profile.save()
