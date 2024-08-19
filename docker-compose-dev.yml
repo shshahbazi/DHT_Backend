@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:15.2
+    environment:
+      - POSTGRES_DB=dhtdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  postgres_data:
