@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'habit.apps.HabitConfig',
     'common.apps.CommonConfig',
-    'scoring.apps.ScoringConfig'
+    'scoring.apps.ScoringConfig',
+    'mental.apps.MentalConfig'
 ]
 
 MIDDLEWARE = [
