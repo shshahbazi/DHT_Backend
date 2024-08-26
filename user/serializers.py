@@ -4,6 +4,8 @@ import random
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 
+from habit.models import WorkSession
+from mental.models import DailyMood
 from scoring.serializers import UserScoreOutputSerializer
 from user.models import CustomUser, Profile
 
@@ -77,10 +79,26 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class OutputProfileSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email', read_only=True)
     score = serializers.IntegerField(source='user.userscore.score', read_only=True)
+    mood = serializers.SerializerMethodField()
+    start_work_session = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
         fields = '__all__'
+
+    def get_mood(self, obj):
+        user_mood = DailyMood.objects.filter(user=obj.user, created_at__day=timezone.now().day).first()
+
+        if not user_mood:
+            return None
+        return user_mood.mood
+
+    def get_start_work_session(self, obj):
+        work_session = WorkSession.objects.filter(user=obj.user, end_time=None).first()
+
+        if not work_session:
+            return None
+        return work_session.start_time
 
 
 class ProfileInputSerializer(serializers.ModelSerializer):
