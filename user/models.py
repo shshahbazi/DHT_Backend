@@ -52,3 +52,4 @@ def upload_to(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     picture = models.FileField(upload_to='profile/', blank=True, null=True)
+    allowed_habits_count = models.IntegerField(default=3)

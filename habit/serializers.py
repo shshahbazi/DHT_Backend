@@ -51,11 +51,18 @@ class SingleHabitSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user_creator']
 
+    def validate(self, attrs):
+        user_creator = self.context['user']
+        if user_creator.profile.allowed_habits_count < 1:
+            raise exceptions.ValidationError("You are not allowed to create new habit")
+
     def save(self, **kwargs):
         user_creator = self.context['user']
 
         self.validated_data['user_creator'] = user_creator
         instance = super().save(**kwargs)
+        user_creator.profile.allowed_habits_count -= 1
+        user_creator.profile.save()
 
         return instance
 
@@ -66,11 +73,18 @@ class RecurringHabitSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user_creator']
 
+    def validate(self, attrs):
+        user_creator = self.context['user']
+        if user_creator.profile.allowed_habits_count < 1:
+            raise exceptions.ValidationError("You are not allowed to create new habit")
+
     def save(self, **kwargs):
         user_creator = self.context['user']
 
         self.validated_data['user_creator'] = user_creator
         instance = super().save(**kwargs)
+        user_creator.profile.allowed_habits_count -= 1
+        user_creator.profile.save()
 
         return instance
 
