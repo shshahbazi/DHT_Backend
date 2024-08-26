@@ -8,11 +8,15 @@
         body {
             font-family: 'Tahoma', sans-serif;
             background-color: #f7f7f7;
-            margin: 0;
+            margin: 0 auto;
             padding: 0;
             text-align: center;
             color: #333;
             direction: rtl; /* اضافه کردن direction در body */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
         .email-container {
             max-width: 600px;
@@ -48,7 +52,7 @@
         }
     </style>
 </head>
-<body>
+<body dir="rtl">
     <div class="email-container">
         <div class="header">
             ورود به سیستم دوست
