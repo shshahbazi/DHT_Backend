@@ -8,3 +8,6 @@ class Exercise(BaseModel):
     description = models.TextField(null=True, blank=True)
     media = models.FileField(upload_to='exercises/', null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
