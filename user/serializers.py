@@ -105,3 +105,13 @@ class ProfileInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['picture']
+
+    def validate_picture(self, value):
+        if value is None:
+            return value
+
+        if not self.instance.allowed_change_profile:
+            raise exceptions.ValidationError('You are not allowed to change your profile picture')
+
+        return value
+
