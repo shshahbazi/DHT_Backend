@@ -9,7 +9,7 @@ from exercise.serializers import ExerciseSerializer
 
 
 class ExerciseDetailView(APIView):
-    @swagger_auto_schema(responses={200: ExerciseSerializer()})
+    @swagger_auto_schema(responses={200: ExerciseSerializer()}, tags=['Exercise'])
     def get(self, request, exercise_id):
         exercise = Exercise.objects.get(id=exercise_id)
         serializer = ExerciseSerializer(exercise)
@@ -19,7 +19,7 @@ class ExerciseDetailView(APIView):
 
 
 class ExerciseListView(APIView):
-    @swagger_auto_schema(responses={200: ExerciseSerializer(many=True)})
+    @swagger_auto_schema(responses={200: ExerciseSerializer(many=True)}, tags=['Exercise'])
     def get(self, request):
         exercises = Exercise.objects.all()
         serializer = ExerciseSerializer(instance=exercises, many=True)
