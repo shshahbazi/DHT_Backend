@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from django.utils import timezone
-from django.core import exceptions
+from rest_framework import exceptions
 
 from .models import HabitInstance, WorkSession
 from django.core.mail import EmailMessage
@@ -31,4 +31,4 @@ def send_habit_notification(habit_instance):
         email = EmailMessage(subject='یادآوری عادت', body=email_body, to=[habit_instance.user.email])
         email.send()
     except Exception as e:
-        raise exceptions.BadRequest(f'An error occurred while sending notification: {e}')
+        raise exceptions.APIException(f'An error occurred while sending notification: {e}')

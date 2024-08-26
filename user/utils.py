@@ -1,5 +1,5 @@
 import requests
-from django.core import exceptions
+from rest_framework import exceptions
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -14,7 +14,7 @@ def send_otp(email, otp):
         email.content_subtype = 'html'
         email.send()
     except Exception as e:
-        raise exceptions.BadRequest(f'An error occurred while sending email: {e}')
+        raise exceptions.APIException(f'An error occurred while sending email: {e}')
 
 #
 # def set_github_avatar(strategy, details, response, socialauth, *args, **kwargs):
