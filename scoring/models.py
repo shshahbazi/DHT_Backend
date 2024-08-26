@@ -28,10 +28,19 @@ class Feature(models.Model):
     habit_increase_amount = models.PositiveIntegerField(default=0)
 
     def get_feature(self, user):
+        if user.userscore.score < self.cost:
+            return False
+
         if self.type == 'profile':
             user.profile.allowed_change_profile = True
         if self.type == 'habit_limit':
-            user.profile.allowed_change_profile += self.habit_increase_amount
+            user.profile.allowed_habits_count += self.habit_increase_amount
+
+        user.userscore.score -= self.cost
+        user.userscore.save()
+        user.profile.save()
+
+        return True
 
 
 class PurchasedFeature(models.Model):
