@@ -16,16 +16,25 @@ class UserScore(models.Model):
         self.save()
 
 
-class Reward(models.Model):
+class Feature(models.Model):
+    FEATURE_TYPE_CHOICES = [
+        ('profile', 'Profile'),
+        ('habit_limit', 'Habit Limit Increase'),
+    ]
     name = models.CharField(max_length=255)
+    type = models.CharField(max_length=255, choices=FEATURE_TYPE_CHOICES)
     description = models.TextField()
-    required_score = models.PositiveIntegerField()
+    cost = models.PositiveIntegerField()
+    habit_increase_amount = models.PositiveIntegerField(default=0)
 
-    def is_unlocked(self, user):
-        return user.score.score >= self.required_score
+    def get_feature(self, user):
+        if self.type == 'profile':
+            user.profile.allowed_change_profile = True
+        if self.type == 'habit_limit':
+            user.profile.allowed_change_profile += self.habit_increase_amount
 
 
-class UserReward(models.Model):
+class PurchasedFeature(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='rewards')
-    reward = models.ForeignKey(Reward, on_delete=models.CASCADE, related_name='users')
+    feature = models.ForeignKey(Feature, on_delete=models.CASCADE, related_name='users')
     unlocked_at = models.DateTimeField(auto_now_add=True)
