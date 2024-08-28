@@ -58,3 +58,15 @@ class WorkSession(BaseModel):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(blank=True, null=True)
 
+
+class ToDoList(BaseModel):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+
+class ToDoItem(BaseModel):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    done = models.BooleanField(default=False)
+    deadline = models.DateTimeField(blank=True, null=True)
+    list = models.ForeignKey(ToDoList, on_delete=models.CASCADE)
+
