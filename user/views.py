@@ -72,7 +72,7 @@ class GetProfileDetails(APIView):
     @swagger_auto_schema(responses={200: OutputProfileSerializer()}, tags=['Profile'])
     def get(self, request):
         profile = Profile.objects.get(user=request.user)
-        serializer = OutputProfileSerializer(profile)
+        serializer = OutputProfileSerializer(profile, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
