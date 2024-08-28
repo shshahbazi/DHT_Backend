@@ -5,7 +5,8 @@ from django.utils import timezone
 from rest_framework import serializers, exceptions
 
 from habit.models import WorkSession
-from mental.models import DailyMood
+from mental.models import DailyMood, DailyUserQuote
+from mental.utils import get_new_quote
 from scoring.serializers import UserScoreOutputSerializer
 from user.models import CustomUser, Profile
 
@@ -81,6 +82,7 @@ class OutputProfileSerializer(serializers.ModelSerializer):
     score = serializers.IntegerField(source='user.userscore.score', read_only=True)
     mood = serializers.SerializerMethodField()
     start_work_session = serializers.SerializerMethodField()
+    daily_quote = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -99,6 +101,14 @@ class OutputProfileSerializer(serializers.ModelSerializer):
         if not work_session:
             return None
         return work_session.start_time
+
+    def get_daily_quote(self, obj):
+        if DailyUserQuote.objects.filter(user=obj.user, created_at__day=timezone.now().day).exists():
+            return DailyUserQuote.objects.filter(user=obj.user, created_at__day=timezone.now().day).first().sentence
+
+        sentence = get_new_quote(obj.user, self.get_mood(obj))
+        DailyUserQuote.objects.create(sentence=sentence, user=obj.user)
+        return sentence
 
 
 class ProfileInputSerializer(serializers.ModelSerializer):

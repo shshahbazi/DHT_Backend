@@ -1,6 +1,11 @@
+import random
+
 from openai import OpenAI
 
-def create_sentence(mood):
+from mental.models import Quote
+
+
+def create_quote(mood):
     if mood:
         prompt = f'باتوجه به حالت روزانه {mood} '
     else:
@@ -21,4 +26,17 @@ def create_sentence(mood):
     )
 
     return completion.choices[0].message.content
+
+
+def get_new_quote(user, mood):
+    if mood:
+        quotes = Quote.objects.filter(mood=mood)
+    else:
+        quotes = Quote.objects.all()
+
+    if quotes.exists():
+        idx = random.randint(0, len(quotes) - 1)
+        return quotes[idx].sentence
+
+    return None
 
