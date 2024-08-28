@@ -60,7 +60,7 @@ class WorkSession(BaseModel):
 
 
 class ToDoList(BaseModel):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
 
 class ToDoItem(BaseModel):
@@ -68,5 +68,5 @@ class ToDoItem(BaseModel):
     description = models.TextField(blank=True, null=True)
     done = models.BooleanField(default=False)
     deadline = models.DateTimeField(blank=True, null=True)
-    list = models.ForeignKey(ToDoList, on_delete=models.CASCADE)
+    list = models.ForeignKey(ToDoList, on_delete=models.CASCADE, related_name='items')
 
