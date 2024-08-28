@@ -1,7 +1,8 @@
 from django.urls import path
 
 from habit.views import WorkSessionStartApi, WorkSessionEndApi, EndHabitInstanceApi, CreateSingleHabitApi, \
-    CreateRecurringHabitApi, RecurringHabitDetailApi, SingleHabitDetailApi, UserHabitsListApi
+    CreateRecurringHabitApi, RecurringHabitDetailApi, SingleHabitDetailApi, UserHabitsListApi, AddToDoItemApi, \
+    ToDoItemDetailApi, GetToDoListApi
 
 urlpatterns = [
     path('start-work/', WorkSessionStartApi.as_view(), name='start_work'),
@@ -12,6 +13,10 @@ urlpatterns = [
     path('single/<int:habit_id>/detail/', SingleHabitDetailApi.as_view(), name='single_detail_habit'),
     path('recurring/create/', CreateRecurringHabitApi.as_view(), name='recurring_habit_create'),
     path('recurring/<int:habit_id>/detail/', RecurringHabitDetailApi.as_view(), name='recurring_habit'),
-    path('user/list/', UserHabitsListApi.as_view(), name='user_list_habits')
+    path('user/list/', UserHabitsListApi.as_view(), name='user_list_habits'),
+
+    path('todo/add-item/', AddToDoItemApi.as_view(), name='add_todo_item'),
+    path('todo/item/<int:pk>/', ToDoItemDetailApi.as_view(), name='todo_item-detail'),
+    path('todo/', GetToDoListApi.as_view(), name='todo_list')
 
 ]

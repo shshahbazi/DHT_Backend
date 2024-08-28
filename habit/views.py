@@ -7,9 +7,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.permissions import IsSingleHabitCreator, IsRecurringHabitCreator
-from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit
+from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit, ToDoItem
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
-    SingleHabitSerializer, RecurringHabitSerializer, HabitListSerializer
+    SingleHabitSerializer, RecurringHabitSerializer, HabitListSerializer, ToDoItemSerializer, InputToDoItemSerializer
 from habit.utils import create_periodic_task_instance, create_single_task_instance, \
     update_single_habit_instance_reminder, delete_single_habit_instance, delete_recurring_habit_instances
 
@@ -180,5 +180,61 @@ class UserHabitsListApi(APIView):
         habits = list(single_habits) + list(recurring_habits)
 
         serializer = HabitListSerializer(habits, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AddToDoItemApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=InputToDoItemSerializer(), responses={201: ToDoItemSerializer()}, tags=['ToDoList'])
+    def post(self, request):
+        user = request.user
+        serializer = InputToDoItemSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ToDoItemDetailApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(responses={200: ToDoItemSerializer()}, tags=['ToDoList'])
+    def get(self, request, pk):
+        item = ToDoItem.objects.get(pk=pk)
+        serializer = ToDoItemSerializer(item, context={'request': request})
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(request_body=ToDoItemSerializer(), responses={200: ToDoItemSerializer()}, tags=['ToDoList'])
+    def put(self, request, pk):
+        item = ToDoItem.objects.get(pk=pk)
+        serializer = ToDoItemSerializer(instance=item, data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(responses={200: None}, tags=['ToDoList'])
+    def delete(self, request, pk):
+        item = ToDoItem.objects.get(pk=pk)
+        item.delete()
+        return Response(status=status.HTTP_200_OK)
+
+
+class GetToDoListApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(responses={200: ToDoItemSerializer(many=True)}, tags=['ToDoList'])
+    def get(self, request):
+        user = request.user
+        todo_items = user.todolist.items.all()
+
+        sorted_items = sorted(
+            todo_items,
+            key=lambda item: (item.done, item.deadline)
+        )
+        serializer = ToDoItemSerializer(sorted_items, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
