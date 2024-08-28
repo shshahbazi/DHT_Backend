@@ -12,7 +12,7 @@ class DailyMood(BaseModel):
 
 class Quote(models.Model):
     sentence = models.TextField()
-    mood = models.ForeignKey(DailyMood, on_delete=models.CASCADE)
+    mood = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)])
 
 
 class DailyUserQuote(BaseModel):
