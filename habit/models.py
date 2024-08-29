@@ -70,3 +70,10 @@ class ToDoItem(BaseModel):
     deadline = models.DateTimeField(blank=True, null=True)
     list = models.ForeignKey(ToDoList, on_delete=models.CASCADE, related_name='items')
 
+
+class UserHabitSuggestion(BaseModel):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='suggestions')
+    name = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    score = models.PositiveIntegerField(default=1)
+
