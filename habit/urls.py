@@ -2,7 +2,7 @@ from django.urls import path
 
 from habit.views import WorkSessionStartApi, WorkSessionEndApi, EndHabitInstanceApi, CreateSingleHabitApi, \
     CreateRecurringHabitApi, RecurringHabitDetailApi, SingleHabitDetailApi, UserHabitsListApi, AddToDoItemApi, \
-    ToDoItemDetailApi, GetToDoListApi
+    ToDoItemDetailApi, GetToDoListApi, SubmitUserHabitSuggestionApi
 
 urlpatterns = [
     path('start-work/', WorkSessionStartApi.as_view(), name='start_work'),
@@ -17,6 +17,8 @@ urlpatterns = [
 
     path('todo/add-item/', AddToDoItemApi.as_view(), name='add_todo_item'),
     path('todo/item/<int:pk>/', ToDoItemDetailApi.as_view(), name='todo_item-detail'),
-    path('todo/', GetToDoListApi.as_view(), name='todo_list')
+    path('todo/', GetToDoListApi.as_view(), name='todo_list'),
+
+    path('suggest/submit/', SubmitUserHabitSuggestionApi.as_view(), name='user_habit-suggest')
 
 ]

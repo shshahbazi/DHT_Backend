@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 from common.permissions import IsSingleHabitCreator, IsRecurringHabitCreator
 from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit, ToDoItem
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
-    SingleHabitSerializer, RecurringHabitSerializer, HabitListSerializer, ToDoItemSerializer, InputToDoItemSerializer
+    SingleHabitSerializer, RecurringHabitSerializer, HabitListSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
+    UserHabitSuggestionSerializer
 from habit.utils import create_periodic_task_instance, create_single_task_instance, \
     update_single_habit_instance_reminder, delete_single_habit_instance, delete_recurring_habit_instances
 
@@ -238,3 +239,18 @@ class GetToDoListApi(APIView):
         serializer = ToDoItemSerializer(sorted_items, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SubmitUserHabitSuggestionApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=UserHabitSuggestionSerializer(), responses={201: UserHabitSuggestionSerializer()}, tags=['Suggestion']
+    )
+    def post(self, request):
+        user = request.user
+        serializer = UserHabitSuggestionSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

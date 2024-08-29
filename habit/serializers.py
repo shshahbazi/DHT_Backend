@@ -1,7 +1,8 @@
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 
-from habit.models import WorkSession, HabitInstance, SingleHabit, RecurringHabit, ToDoItem, ToDoList
+from habit.models import WorkSession, HabitInstance, SingleHabit, RecurringHabit, ToDoItem, ToDoList, \
+    UserHabitSuggestion
 from habit.utils import create_periodic_task_instance
 
 
@@ -138,3 +139,16 @@ class ToDoItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ToDoItem
         exclude = ['list', 'created_at', 'updated_at']
+
+
+class UserHabitSuggestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserHabitSuggestion
+        fields = '__all__'
+        read_only_fields = ['user']
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        attrs['user'] = user
+        return attrs
+
