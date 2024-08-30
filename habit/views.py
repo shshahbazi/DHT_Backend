@@ -6,13 +6,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.permissions import IsSingleHabitCreator, IsRecurringHabitCreator
-from habit.models import WorkSession, RecurringHabit, HabitInstance, SingleHabit, ToDoItem
+from common.permissions import IsRecurringHabitCreator
+from habit.models import WorkSession, Habit, HabitInstance, ToDoItem
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
-    SingleHabitSerializer, RecurringHabitSerializer, HabitListSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
+    RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
     UserHabitSuggestionSerializer
-from habit.utils import create_periodic_task_instance, create_single_task_instance, \
-    update_single_habit_instance_reminder, delete_single_habit_instance, delete_recurring_habit_instances
+from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances
 
 
 class WorkSessionStartApi(APIView):
@@ -30,7 +29,7 @@ class WorkSessionStartApi(APIView):
 
         work_session = WorkSession.objects.create(user=user, start_time=serializer.validated_data['start_time'])
 
-        tasks = RecurringHabit.objects.filter(Q(user_creator=None) | Q(user_creator=user))
+        tasks = Habit.objects.filter(Q(user_creator=None) | Q(user_creator=user))
         for task in tasks:
             create_periodic_task_instance(user=user, task=task)
 
@@ -73,21 +72,21 @@ class EndHabitInstanceApi(APIView):
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
-class CreateSingleHabitApi(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @swagger_auto_schema(
-        request_body=SingleHabitSerializer, responses={201: SingleHabitSerializer()}, tags=['SingleHabit']
-    )
-    def post(self, request):
-        serializer = SingleHabitSerializer(data=request.data, context={'user': request.user})
-        serializer.is_valid(raise_exception=True)
-
-        new_habit = serializer.save()
-        create_single_task_instance(request.user, new_habit)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+# class CreateSingleHabitApi(APIView):
+#     permission_classes = [IsAuthenticated]
+#
+#     @swagger_auto_schema(
+#         request_body=SingleHabitSerializer, responses={201: SingleHabitSerializer()}, tags=['SingleHabit']
+#     )
+#     def post(self, request):
+#         serializer = SingleHabitSerializer(data=request.data, context={'user': request.user})
+#         serializer.is_valid(raise_exception=True)
+#
+#         new_habit = serializer.save()
+#         create_single_task_instance(request.user, new_habit)
+#
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#
 
 class CreateRecurringHabitApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -111,14 +110,14 @@ class RecurringHabitDetailApi(APIView):
 
     @swagger_auto_schema(responses={200: RecurringHabitSerializer()}, tags=['RecurringHabit'])
     def get(self, request, habit_id):
-        habit = RecurringHabit.objects.get(id=habit_id)
+        habit = Habit.objects.get(id=habit_id)
         serializer = RecurringHabitSerializer(instance=habit)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(responses={200: None}, tags=['RecurringHabit'])
     def delete(self, request, habit_id):
-        habit = RecurringHabit.objects.get(id=habit_id)
+        habit = Habit.objects.get(id=habit_id)
         delete_recurring_habit_instances(habit)
         habit.delete()
         return Response(status=status.HTTP_200_OK)
@@ -128,7 +127,7 @@ class RecurringHabitDetailApi(APIView):
     )
     def put(self, request, habit_id):
         # TODO: should pending instances change?
-        habit = RecurringHabit.objects.get(id=habit_id)
+        habit = Habit.objects.get(id=habit_id)
         serializer = RecurringHabitSerializer(instance=habit, data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
 
@@ -136,51 +135,48 @@ class RecurringHabitDetailApi(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SingleHabitDetailApi(APIView):
-    permission_classes = [IsAuthenticated, IsSingleHabitCreator]
-
-    @swagger_auto_schema(responses={200: SingleHabitSerializer()}, tags=['SingleHabit'])
-    def get(self, request, habit_id):
-        habit = SingleHabit.objects.get(id=habit_id)
-        serializer = SingleHabitSerializer(instance=habit)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(responses={200: None}, tags=['SingleHabit'])
-    def delete(self, request, habit_id):
-        habit = SingleHabit.objects.get(id=habit_id)
-        delete_single_habit_instance(habit)
-        habit.delete()
-        return Response(status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(
-        request_body=SingleHabitSerializer, responses={200: SingleHabitSerializer()}, tags=['SingleHabit']
-    )
-    def put(self, request, habit_id):
-        habit = SingleHabit.objects.get(id=habit_id)
-
-        serializer = SingleHabitSerializer(instance=habit, data=request.data, context={'user': request.user})
-        serializer.is_valid(raise_exception=True)
-
-        new_habit = serializer.save()
-        update_single_habit_instance_reminder(new_habit)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# class SingleHabitDetailApi(APIView):
+#     permission_classes = [IsAuthenticated, IsSingleHabitCreator]
+#
+#     @swagger_auto_schema(responses={200: SingleHabitSerializer()}, tags=['SingleHabit'])
+#     def get(self, request, habit_id):
+#         habit = SingleHabit.objects.get(id=habit_id)
+#         serializer = SingleHabitSerializer(instance=habit)
+#
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#     @swagger_auto_schema(responses={200: None}, tags=['SingleHabit'])
+#     def delete(self, request, habit_id):
+#         habit = SingleHabit.objects.get(id=habit_id)
+#         delete_single_habit_instance(habit)
+#         habit.delete()
+#         return Response(status=status.HTTP_200_OK)
+#
+#     @swagger_auto_schema(
+#         request_body=SingleHabitSerializer, responses={200: SingleHabitSerializer()}, tags=['SingleHabit']
+#     )
+#     def put(self, request, habit_id):
+#         habit = SingleHabit.objects.get(id=habit_id)
+#
+#         serializer = SingleHabitSerializer(instance=habit, data=request.data, context={'user': request.user})
+#         serializer.is_valid(raise_exception=True)
+#
+#         new_habit = serializer.save()
+#         update_single_habit_instance_reminder(new_habit)
+#
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserHabitsListApi(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(responses={200: HabitListSerializer(many=True)})
+    @swagger_auto_schema(responses={200: RecurringHabitSerializer(many=True)})
     def get(self, request):
         user = request.user
 
-        single_habits = SingleHabit.objects.filter(user_creator__in=[user, None])
-        recurring_habits = RecurringHabit.objects.filter(user_creator__in=[user, None])
+        recurring_habits = Habit.objects.filter(user_creator__in=[user, None])
 
-        habits = list(single_habits) + list(recurring_habits)
-
-        serializer = HabitListSerializer(habits, many=True)
+        serializer = RecurringHabitSerializer(recurring_habits, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
