@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.core import exceptions
 
-from .tasks import send_reminder_task
+from .tasks import send_habit_task
 
 from habit.models import RecurringHabit, HabitInstance, SingleHabit
 
@@ -26,7 +26,7 @@ def create_periodic_task_instance(user, task):
         reminder_time=reminder_time
     )
 
-    celery_task = send_reminder_task.apply_async((habit_instance.id,), eta=reminder_time)
+    celery_task = send_habit_task.apply_async((habit_instance.id,), eta=reminder_time)
     habit_instance.celery_task_id = celery_task.id
     habit_instance.save()
 
@@ -46,7 +46,7 @@ def create_single_task_instance(user, task):
         reminder_time=reminder_time
     )
 
-    celery_task = send_reminder_task.apply_async((habit_instance.id,), eta=reminder_time)
+    celery_task = send_habit_task.apply_async((habit_instance.id,), eta=reminder_time)
 
     habit_instance.celery_task_id = celery_task.id
     habit_instance.save()
@@ -76,7 +76,7 @@ def update_single_habit_instance_reminder(habit):
             raise exceptions.BadRequest(f"Failed to update habit instance: {str(e)}")
 
         try:
-            celery_task = send_reminder_task.apply_async((habit_instance.id,), eta=habit.reminder_time)
+            celery_task = send_habit_task.apply_async((habit_instance.id,), eta=habit.reminder_time)
             habit_instance.celery_task_id = celery_task.id
             habit_instance.save()
 

@@ -9,7 +9,7 @@ from datetime import timedelta
 
 
 @shared_task
-def send_reminder_task(habit_instance_id):
+def send_habit_task(habit_instance_id):
     try:
         habit_instance: HabitInstance = HabitInstance.objects.get(id=habit_instance_id)
         if habit_instance.is_completed():
