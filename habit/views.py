@@ -6,11 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.permissions import IsRecurringHabitCreator
-from habit.models import WorkSession, Habit, HabitInstance, ToDoItem
+from common.permissions import IsRecurringHabitCreator, IsReminderCreator
+from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
-    UserHabitSuggestionSerializer
+    UserHabitSuggestionSerializer, ReminderSerializer
 from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances
 
 
@@ -72,21 +72,21 @@ class EndHabitInstanceApi(APIView):
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
-# class CreateSingleHabitApi(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     @swagger_auto_schema(
-#         request_body=SingleHabitSerializer, responses={201: SingleHabitSerializer()}, tags=['SingleHabit']
-#     )
-#     def post(self, request):
-#         serializer = SingleHabitSerializer(data=request.data, context={'user': request.user})
-#         serializer.is_valid(raise_exception=True)
-#
-#         new_habit = serializer.save()
-#         create_single_task_instance(request.user, new_habit)
-#
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#
+class CreateReminderApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=ReminderSerializer, responses={201: ReminderSerializer()}, tags=['SingleHabit']
+    )
+    def post(self, request):
+        serializer = ReminderSerializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+
+        new_reminder = serializer.save()
+        # create_single_task_instance(request.user, new_habit)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class CreateRecurringHabitApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -135,16 +135,16 @@ class RecurringHabitDetailApi(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class SingleHabitDetailApi(APIView):
-#     permission_classes = [IsAuthenticated, IsSingleHabitCreator]
-#
-#     @swagger_auto_schema(responses={200: SingleHabitSerializer()}, tags=['SingleHabit'])
-#     def get(self, request, habit_id):
-#         habit = SingleHabit.objects.get(id=habit_id)
-#         serializer = SingleHabitSerializer(instance=habit)
-#
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#
+class ReminderDetailApi(APIView):
+    permission_classes = [IsAuthenticated, IsReminderCreator]
+
+    @swagger_auto_schema(responses={200: ReminderSerializer()}, tags=['SingleHabit'])
+    def get(self, request, reminder_id):
+        reminder = Reminder.objects.get(id=reminder_id)
+        serializer = ReminderSerializer(instance=reminder)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 #     @swagger_auto_schema(responses={200: None}, tags=['SingleHabit'])
 #     def delete(self, request, habit_id):
 #         habit = SingleHabit.objects.get(id=habit_id)

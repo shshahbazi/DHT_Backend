@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers, exceptions
 
 from habit.models import WorkSession, HabitInstance, Habit, ToDoItem, ToDoList, \
-    UserHabitSuggestion
+    UserHabitSuggestion, Reminder
 from habit.utils import create_periodic_task_instance
 
 
@@ -45,26 +45,19 @@ class ChangeHabitInstanceStatusSerializer(serializers.ModelSerializer):
         return instance
 
 
-# class SingleHabitSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = SingleHabit
-#         fields = '__all__'
-#         read_only_fields = ['user_creator']
-#
-#     def validate(self, attrs):
-#         user_creator = self.context['user']
-#         if user_creator.profile.allowed_habits_count < 1:
-#             raise exceptions.ValidationError("You are not allowed to create new habit")
-#
-#     def save(self, **kwargs):
-#         user_creator = self.context['user']
-#
-#         self.validated_data['user_creator'] = user_creator
-#         instance = super().save(**kwargs)
-#         user_creator.profile.allowed_habits_count -= 1
-#         user_creator.profile.save()
-#
-#         return instance
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+        read_only_fields = ['user_creator']
+
+    def save(self, **kwargs):
+        user_creator = self.context['user']
+
+        self.validated_data['user_creator'] = user_creator
+        instance = super().save(**kwargs)
+
+        return instance
 
 
 class RecurringHabitSerializer(serializers.ModelSerializer):
