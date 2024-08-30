@@ -48,8 +48,8 @@ class ChangeHabitInstanceStatusSerializer(serializers.ModelSerializer):
 class ReminderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reminder
-        fields = '__all__'
         read_only_fields = ['user_creator']
+        exclude = ['celery_task_id']
 
     def save(self, **kwargs):
         user_creator = self.context['user']
