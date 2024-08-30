@@ -182,6 +182,18 @@ class UserHabitsListApi(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class UserReminderListApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(responses={200: ReminderSerializer(many=True)}, tags=['Reminder'])
+    def get(self, request):
+        user = request.user
+        reminders = Reminder.objects.filter(user_creator=user)
+        serializer = ReminderSerializer(reminders, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class AddToDoItemApi(APIView):
     permission_classes = [IsAuthenticated]
 

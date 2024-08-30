@@ -2,7 +2,8 @@ from django.urls import path
 
 from habit.views import WorkSessionStartApi, WorkSessionEndApi, EndHabitInstanceApi, \
     CreateRecurringHabitApi, RecurringHabitDetailApi, UserHabitsListApi, AddToDoItemApi, \
-    ToDoItemDetailApi, GetToDoListApi, SubmitUserHabitSuggestionApi, CreateReminderApi, ReminderDetailApi
+    ToDoItemDetailApi, GetToDoListApi, SubmitUserHabitSuggestionApi, CreateReminderApi, ReminderDetailApi, \
+    UserReminderListApi
 
 urlpatterns = [
     path('start-work/', WorkSessionStartApi.as_view(), name='start_work'),
@@ -11,6 +12,7 @@ urlpatterns = [
 
     path('reminder/create/', CreateReminderApi.as_view(), name='create_reminder'),
     path('reminder/<int:reminder_id>/detail/', ReminderDetailApi.as_view(), name='reminder_detail'),
+    path('reminder/list/', UserReminderListApi.as_view(), name='user_reminder_list'),
 
 
     path('recurring/create/', CreateRecurringHabitApi.as_view(), name='recurring_habit_create'),
