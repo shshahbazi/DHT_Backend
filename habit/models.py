@@ -14,20 +14,22 @@ class Habit(BaseModel):
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     score = models.PositiveIntegerField(default=1)
-
-    class Meta:
-        abstract = True
-
-
-class SingleHabit(Habit):
-    reminder_time = models.DateTimeField()
-    instances = GenericRelation('HabitInstance', related_query_name='single_habits')
-
-
-class RecurringHabit(Habit):
     recurrence_seconds = models.IntegerField()
     duration_seconds = models.IntegerField(default=0)
-    instances = GenericRelation('HabitInstance', related_query_name='recurring_habits')
+
+    # class Meta:
+    #     abstract = True
+
+
+# class SingleHabit(Habit):
+#     reminder_time = models.DateTimeField()
+#     instances = GenericRelation('HabitInstance', related_query_name='single_habits')
+
+
+# class RecurringHabit(Habit):
+#     recurrence_seconds = models.IntegerField()
+#     duration_seconds = models.IntegerField(default=0)
+#     instances = GenericRelation('HabitInstance', related_query_name='recurring_habits')
 
 
 class HabitInstance(BaseModel):
@@ -38,9 +40,7 @@ class HabitInstance(BaseModel):
         NOTIFIED = "NOTIFIED", "Notified"
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    habit = GenericForeignKey('content_type', 'object_id')
+    habit = models.ForeignKey(Habit, on_delete=models.CASCADE, related_name="instances")
     status = models.CharField(max_length=200, choices=STATUS.choices, default=STATUS.PENDING)
     reminder_time = models.DateTimeField()
     ended_at = models.DateTimeField(blank=True, null=True)
