@@ -83,3 +83,4 @@ class Reminder(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     reminder_time = models.DateTimeField()
+    celery_task_id = models.CharField(max_length=200, blank=True, null=True)
