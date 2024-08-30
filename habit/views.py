@@ -76,7 +76,7 @@ class CreateReminderApi(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        request_body=ReminderSerializer, responses={201: ReminderSerializer()}, tags=['SingleHabit']
+        request_body=ReminderSerializer, responses={201: ReminderSerializer()}, tags=['Reminder']
     )
     def post(self, request):
         serializer = ReminderSerializer(data=request.data, context={'user': request.user})
@@ -138,33 +138,33 @@ class RecurringHabitDetailApi(APIView):
 class ReminderDetailApi(APIView):
     permission_classes = [IsAuthenticated, IsReminderCreator]
 
-    @swagger_auto_schema(responses={200: ReminderSerializer()}, tags=['SingleHabit'])
+    @swagger_auto_schema(responses={200: ReminderSerializer()}, tags=['Reminder'])
     def get(self, request, reminder_id):
         reminder = Reminder.objects.get(id=reminder_id)
         serializer = ReminderSerializer(instance=reminder)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-#     @swagger_auto_schema(responses={200: None}, tags=['SingleHabit'])
-#     def delete(self, request, habit_id):
-#         habit = SingleHabit.objects.get(id=habit_id)
-#         delete_single_habit_instance(habit)
-#         habit.delete()
-#         return Response(status=status.HTTP_200_OK)
-#
-#     @swagger_auto_schema(
-#         request_body=SingleHabitSerializer, responses={200: SingleHabitSerializer()}, tags=['SingleHabit']
-#     )
-#     def put(self, request, habit_id):
-#         habit = SingleHabit.objects.get(id=habit_id)
-#
-#         serializer = SingleHabitSerializer(instance=habit, data=request.data, context={'user': request.user})
-#         serializer.is_valid(raise_exception=True)
-#
-#         new_habit = serializer.save()
-#         update_single_habit_instance_reminder(new_habit)
-#
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+    @swagger_auto_schema(responses={200: None}, tags=['Reminder'])
+    def delete(self, request, reminder_id):
+        reminder = Reminder.objects.get(id=reminder_id)
+        # delete_single_habit_instance(habit)
+        reminder.delete()
+        return Response(status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        request_body=ReminderSerializer, responses={200: ReminderSerializer()}, tags=['Reminder']
+    )
+    def put(self, request, reminder_id):
+        reminder = Reminder.objects.get(id=reminder_id)
+
+        serializer = ReminderSerializer(instance=reminder, data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+
+        new_reminder = serializer.save()
+        # update_single_habit_instance_reminder(new_habit)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserHabitsListApi(APIView):
