@@ -11,7 +11,7 @@ from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
     UserHabitSuggestionSerializer, ReminderSerializer
-from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances
+from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances, create_reminder_celery_task
 
 
 class WorkSessionStartApi(APIView):
@@ -83,7 +83,7 @@ class CreateReminderApi(APIView):
         serializer.is_valid(raise_exception=True)
 
         new_reminder = serializer.save()
-        # create_single_task_instance(request.user, new_habit)
+        create_reminder_celery_task(new_reminder)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

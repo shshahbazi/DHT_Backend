@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.core import exceptions
 
-from .tasks import send_habit_task
+from .tasks import send_habit_task, send_reminder_task
 
 from habit.models import Habit, HabitInstance
 
@@ -48,6 +48,14 @@ def create_periodic_task_instance(user, task):
 #     habit_instance.save()
 #
 #     return habit_instance
+
+def create_reminder_celery_task(reminder):
+    reminder_time = reminder.reminder_time
+
+    celery_task = send_reminder_task.apply_async((reminder.id,), eta=reminder_time)
+
+    reminder.celery_task_id = celery_task.id
+    reminder.save()
 
 
 # def update_single_habit_instance_reminder(habit):
