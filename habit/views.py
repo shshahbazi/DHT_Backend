@@ -29,7 +29,7 @@ class WorkSessionStartApi(APIView):
 
         work_session = WorkSession.objects.create(user=user, start_time=serializer.validated_data['start_time'])
 
-        tasks = Habit.objects.filter(Q(user_creator=None) | Q(user_creator=user))
+        tasks = Habit.objects.filter((Q(user_creator=None) | Q(user_creator=user)) & (Q(is_active=True)))
         for task in tasks:
             create_periodic_task_instance(user=user, task=task)
 
