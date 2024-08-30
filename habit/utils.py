@@ -57,22 +57,15 @@ def update_reminder_task(reminder):
     return reminder
 
 
-# def delete_single_habit_instance(habit):
-#     if not isinstance(habit, SingleHabit):
-#         return
-#
-#     habit_instance = habit.instances.all().first()
-#
-#     with transaction.atomic():
-#         try:
-#             if habit_instance.celery_task_id:
-#                 task_result = AsyncResult(habit_instance.celery_task_id)
-#                 task_result.revoke(terminate=True)
-#
-#         except Exception as e:
-#             raise exceptions.BadRequest(f"Failed to revoke previous task: {str(e)}")
-#
-#         habit_instance.delete()
+def delete_reminder_task(reminder):
+    with transaction.atomic():
+        try:
+            if reminder.celery_task_id:
+                task_result = AsyncResult(reminder.celery_task_id)
+                task_result.revoke(terminate=True)
+
+        except Exception as e:
+            raise exceptions.APIException(f"Failed to revoke previous task: {str(e)}")
 
 
 def delete_recurring_habit_instances(habit):

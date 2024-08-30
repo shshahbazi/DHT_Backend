@@ -12,7 +12,7 @@ from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceSta
     RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
     UserHabitSuggestionSerializer, ReminderSerializer
 from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances, create_reminder_celery_task, \
-    update_reminder_task
+    update_reminder_task, delete_reminder_task
 
 
 class WorkSessionStartApi(APIView):
@@ -149,7 +149,7 @@ class ReminderDetailApi(APIView):
     @swagger_auto_schema(responses={200: None}, tags=['Reminder'])
     def delete(self, request, reminder_id):
         reminder = Reminder.objects.get(id=reminder_id)
-        # delete_single_habit_instance(habit)
+        delete_reminder_task(reminder)
         reminder.delete()
         return Response(status=status.HTTP_200_OK)
 
@@ -171,7 +171,7 @@ class ReminderDetailApi(APIView):
 class UserHabitsListApi(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(responses={200: RecurringHabitSerializer(many=True)})
+    @swagger_auto_schema(responses={200: RecurringHabitSerializer(many=True)}, tags=['RecurringHabits'])
     def get(self, request):
         user = request.user
 
