@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers, exceptions
 
 from habit.models import WorkSession, HabitInstance, Habit, ToDoItem, ToDoList, \
-    UserHabitSuggestion, Reminder
+    UserHabitSuggestion, Reminder, PushNotificationToken
 from habit.utils import create_periodic_task_instance
 
 
@@ -144,3 +144,8 @@ class UserHabitSuggestionSerializer(serializers.ModelSerializer):
         attrs['user'] = user
         return attrs
 
+
+class PushNotificationTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PushNotificationToken
+        fields = '__all__'
