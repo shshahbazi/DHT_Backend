@@ -84,3 +84,8 @@ class Reminder(BaseModel):
     description = models.TextField(null=True, blank=True)
     reminder_time = models.DateTimeField()
     celery_task_id = models.CharField(max_length=200, blank=True, null=True)
+
+
+class PushNotificationToken(models.Model):
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    fcm_token = models.CharField(max_length=255, unique=True)
