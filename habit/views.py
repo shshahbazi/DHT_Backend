@@ -7,10 +7,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.permissions import IsRecurringHabitCreator, IsReminderCreator
-from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder
+from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder, PushNotificationToken
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
-    UserHabitSuggestionSerializer, ReminderSerializer
+    UserHabitSuggestionSerializer, ReminderSerializer, PushNotificationTokenSerializer
 from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances, create_reminder_celery_task, \
     update_reminder_task, delete_reminder_task
 
@@ -263,3 +263,28 @@ class SubmitUserHabitSuggestionApi(APIView):
 
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CreateFCMToken(APIView):
+    @swagger_auto_schema(request_body=PushNotificationTokenSerializer(), responses={201: PushNotificationTokenSerializer()})
+    def post(self, request):
+        serializer = PushNotificationTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# class sendNotif(APIView):
+#     def post(self, request):
+#         user = request.user
+#         access_token = generate_firebase_auth_key()
+#         target_browser = PushNotificationToken.objects.get(owner=user)
+#         fcm_token = target_browser.fcm_token
+#         try:
+#             send_push_notification(access_token, fcm_token)
+#         except Exception as e:
+#             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
