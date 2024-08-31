@@ -107,7 +107,8 @@ class OutputProfileSerializer(serializers.ModelSerializer):
             return DailyUserQuote.objects.filter(user=obj.user, created_at__day=timezone.now().day).first().sentence
 
         sentence = get_new_quote(obj.user, self.get_mood(obj))
-        DailyUserQuote.objects.create(sentence=sentence, user=obj.user)
+        if sentence:
+            DailyUserQuote.objects.create(sentence=sentence, user=obj.user)
         return sentence
 
 
