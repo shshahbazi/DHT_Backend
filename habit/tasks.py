@@ -1,11 +1,14 @@
+import os
+
 from celery import shared_task
-from django.core.mail import send_mail
-from django.utils import timezone
 from rest_framework import exceptions
 
-from .models import HabitInstance, WorkSession, Reminder
-from django.core.mail import EmailMessage
-from datetime import timedelta
+from .models import HabitInstance, WorkSession, Reminder, PushNotificationToken
+
+from google.auth.transport.requests import Request
+from google.oauth2 import service_account
+import requests
+import json
 
 
 @shared_task
@@ -36,21 +39,66 @@ def send_reminder_task(reminder_id):
         pass
 
 
+def generate_firebase_auth_key():
+    scopes = ['https://www.googleapis.com/auth/firebase.messaging']
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    json_path = os.path.join(base_dir, 'doost-8726b-ae37069f8ded.json')
+
+    with open(json_path, 'r') as f:
+        credentials_info = json.load(f)
+
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials_info, scopes=scopes
+    )
+
+    credentials.refresh(Request())
+
+    access_token = credentials.token
+    return access_token
+
+
+def send_push_notification(auth_token, fcm_token, title, body):
+    url = "https://fcm.googleapis.com/v1/projects/doost-8726b/messages:send"
+
+    payload = json.dumps({
+        "message": {
+            "token": f'{fcm_token}',
+            "data": {
+                "title": f'{title}',
+                "body": f'{body}'
+            },
+        }
+    })
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {auth_token}'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+
 def send_reminder_notification(reminder_instance):
-    # TODO: sending web push notification instead of email!
     try:
-        email_body = f'سلام دوست عزیز \nالان زمان رسیدگی به یادآوری {reminder_instance.id} است\n{reminder_instance.id}\n'
-        email = EmailMessage(subject='یادآوری عادت', body=email_body, to=[reminder_instance.user_creator.email])
-        email.send()
+        user = reminder_instance.user_creator
+        title = f'یادآوری {reminder_instance.name}'
+        body = f'دوست عزیز! الان زمان رسیدگی به این یادآوری است.'
+        access_token = generate_firebase_auth_key()
+        target_browser = PushNotificationToken.objects.get(owner=user)
+        fcm_token = target_browser.fcm_token
+        send_push_notification(access_token, fcm_token, title, body)
     except Exception as e:
         raise exceptions.APIException(f'An error occurred while sending notification: {e}')
 
 
 def send_habit_notification(habit_instance):
-    # TODO: sending web push notification instead of email!
     try:
-        email_body = f'سلام دوست عزیز \nالان زمان رسیدگی به عادت {habit_instance.id} است\n{habit_instance.id}\n {habit_instance.reminder_time}'
-        email = EmailMessage(subject='یادآوری عادت', body=email_body, to=[habit_instance.user.email])
-        email.send()
+        user = habit_instance.user
+        title = f'عادت {habit_instance.habit.name}'
+        body = f'دوست عزیز! الان زمان رسیدگی به این عادت است.'
+        access_token = generate_firebase_auth_key()
+        target_browser = PushNotificationToken.objects.get(owner=user)
+        fcm_token = target_browser.fcm_token
+        send_push_notification(access_token, fcm_token, title, body)
     except Exception as e:
         raise exceptions.APIException(f'An error occurred while sending notification: {e}')
