@@ -115,6 +115,12 @@ class OutputProfileSerializer(serializers.ModelSerializer):
 class ProfileInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
+        fields = ['first_name', 'last_name', 'date_of_birth']
+
+
+class ProfileInputPictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
         fields = ['picture']
 
     def validate_picture(self, value):

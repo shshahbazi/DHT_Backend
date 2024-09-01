@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from user.models import CustomUser, Profile
 from user.serializers import AuthTokenSerializer, OutputUserLoginSerializer, LoginSerializer, OutputProfileSerializer, \
-    ProfileInputSerializer
+    ProfileInputSerializer, ProfileInputPictureSerializer
 from user.utils import send_otp
 
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -67,7 +67,6 @@ class LogOutApi(APIView):
 
 class GetProfileDetails(APIView):
     permission_classes = [IsAuthenticated, ]
-    parser_classes = [MultiPartParser]
 
     @swagger_auto_schema(responses={200: OutputProfileSerializer()}, tags=['Profile'])
     def get(self, request):
@@ -88,17 +87,19 @@ class GetProfileDetails(APIView):
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
-class UpdateProfileDetails(APIView):
-
+class UpdateProfilePicture(APIView):
+    permission_classes = [IsAuthenticated, ]
+    parser_classes = [MultiPartParser]
 
     @swagger_auto_schema(
-        request_body=ProfileInputSerializer(), responses={200: OutputProfileSerializer()}, tags=['Profile']
+        request_body=ProfileInputPictureSerializer(), responses={200: OutputProfileSerializer()}, tags=['Profile']
     )
     def put(self, request):
-        serializer = ProfileInputSerializer(data=request.data)
+        profile = Profile.objects.get(user=request.user)
+        serializer = ProfileInputPictureSerializer(data=request.data, instance=profile)
         serializer.is_valid(raise_exception=True)
 
         serializer.save()
-        output_serializer = OutputProfileSerializer(serializer.instance)
+        output_serializer = OutputProfileSerializer(instance=serializer.instance, context={'request': request})
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
