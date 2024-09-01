@@ -80,3 +80,12 @@ class Reminder(BaseModel):
 class PushNotificationToken(models.Model):
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     fcm_token = models.CharField(max_length=255, unique=True)
+
+
+class DailyProgress(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    date = models.DateField()
+    progress = models.FloatField()
+
+    class Meta:
+        unique_together = ('user', 'date')
