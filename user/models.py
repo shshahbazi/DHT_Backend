@@ -51,6 +51,9 @@ def upload_to(instance, filename):
 
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=200, blank=True, null=True)
+    last_name = models.CharField(max_length=200, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     picture = models.FileField(upload_to='profile/', blank=True, null=True)
     allowed_habits_count = models.IntegerField(default=3)
     allowed_change_profile = models.BooleanField(default=False)
