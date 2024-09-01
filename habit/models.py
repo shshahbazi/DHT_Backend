@@ -63,6 +63,9 @@ class UserHabitSuggestion(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     score = models.PositiveIntegerField(default=1)
+    recurrence_seconds = models.IntegerField()
+    duration_seconds = models.IntegerField(default=0)
+    notif_body = models.TextField(null=True, blank=True)
 
 
 class Reminder(BaseModel):
