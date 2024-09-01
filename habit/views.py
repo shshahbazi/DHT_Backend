@@ -101,7 +101,7 @@ class CreateRecurringHabitApi(APIView):
 
         new_habit = serializer.save()
         # I don't know if this should be done or not:
-        # create_periodic_task_instance(request.user, new_habit)
+        create_periodic_task_instance(request.user, new_habit)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -171,7 +171,7 @@ class ReminderDetailApi(APIView):
 class UserHabitsListApi(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(responses={200: RecurringHabitSerializer(many=True)}, tags=['RecurringHabits'])
+    @swagger_auto_schema(responses={200: RecurringHabitSerializer(many=True)}, tags=['RecurringHabit'])
     def get(self, request):
         user = request.user
 
@@ -275,16 +275,14 @@ class CreateFCMToken(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class sendNotif(APIView):
-#     def post(self, request):
-#         user = request.user
-#         access_token = generate_firebase_auth_key()
-#         target_browser = PushNotificationToken.objects.get(owner=user)
-#         fcm_token = target_browser.fcm_token
-#         try:
-#             send_push_notification(access_token, fcm_token)
-#         except Exception as e:
-#             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#         return Response(status=status.HTTP_400_BAD_REQUEST)
+class TodayUserHabitsListApi(APIView):
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: RecurringHabitSerializer(many=True)})
+    def get(self, request):
+        user = request.user
+        habits = Habit.objects.filter((Q(user_creator=None) | Q(user_creator=user)) & (Q(is_active=True)))
+        serializer = RecurringHabitSerializer(habits, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 

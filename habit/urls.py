@@ -3,12 +3,13 @@ from django.urls import path
 from habit.views import WorkSessionStartApi, WorkSessionEndApi, EndHabitInstanceApi, \
     CreateRecurringHabitApi, RecurringHabitDetailApi, UserHabitsListApi, AddToDoItemApi, \
     ToDoItemDetailApi, GetToDoListApi, SubmitUserHabitSuggestionApi, CreateReminderApi, ReminderDetailApi, \
-    UserReminderListApi, CreateFCMToken
+    UserReminderListApi, CreateFCMToken, TodayUserHabitsListApi
 
 urlpatterns = [
     path('start-work/', WorkSessionStartApi.as_view(), name='start_work'),
     path('end-work/', WorkSessionEndApi.as_view(), name='end_work'),
     path('end-habit/<int:habit_instance_id>/', EndHabitInstanceApi.as_view(), name='end_habit'),
+    path('today-habits/', TodayUserHabitsListApi.as_view(), name='today-user-habit-list'),
 
     path('reminder/create/', CreateReminderApi.as_view(), name='create_reminder'),
     path('reminder/<int:reminder_id>/detail/', ReminderDetailApi.as_view(), name='reminder_detail'),
