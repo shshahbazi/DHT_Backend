@@ -1,3 +1,6 @@
+from calendar import monthrange
+from datetime import timedelta
+
 from django.db.models import Q
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
@@ -7,12 +10,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.permissions import IsRecurringHabitCreator, IsReminderCreator
-from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder, PushNotificationToken
+from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder, PushNotificationToken, DailyProgress
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
     UserHabitSuggestionSerializer, ReminderSerializer, PushNotificationTokenSerializer
 from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances, create_reminder_celery_task, \
     update_reminder_task, delete_reminder_task
+
+from django.db.models import F
+from khayyam import JalaliDate
 
 
 class WorkSessionStartApi(APIView):
@@ -286,3 +292,52 @@ class TodayUserHabitsListApi(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class MonthlyHabitHistoryReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        today = timezone.now().date()
+
+        # Convert today's date to Jalali
+        today_jalali = JalaliDate(today)
+
+        # Get the first and last day of the current Jalali month
+        first_day_of_month_jalali = today_jalali.replace(day=1)
+        last_day_of_month_jalali = first_day_of_month_jalali.replace(day=today_jalali.daysinmonth)
+
+        # Convert Jalali dates back to Gregorian for database queries
+        first_day_of_month = first_day_of_month_jalali.todate()
+        last_day_of_month = last_day_of_month_jalali.todate()
+
+        # Check if the progress for each of the days in the current Jalali month is already calculated
+        cached_progress = DailyProgress.objects.filter(user=user, date__range=[first_day_of_month, last_day_of_month])
+        cached_progress_dict = {dp.date: dp.progress for dp in cached_progress}
+
+        progress_report = []
+
+        for single_date in (first_day_of_month + timedelta(n) for n in
+                            range((last_day_of_month - first_day_of_month).days + 1)):
+            if single_date in cached_progress_dict:
+                # Use cached progress
+                progress = cached_progress_dict[single_date]
+            else:
+                # Calculate progress for this date
+                habit_instances = HabitInstance.objects.filter(
+                    user=user, reminder_time__date=single_date
+                )
+                done_count = habit_instances.filter(status="DONE").count()
+                total_count = habit_instances.count()
+
+                if total_count > 0:
+                    progress = (done_count / total_count) * 100
+                else:
+                    progress = 0
+
+                # Save the progress for this date
+                DailyProgress.objects.create(user=user, date=single_date, progress=progress)
+
+            progress_report.append({"date": single_date, "progress": progress})
+
+        return Response(progress_report)
