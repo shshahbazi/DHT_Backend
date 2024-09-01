@@ -62,13 +62,17 @@ class AuthTokenSerializer(serializers.ModelSerializer):
 
 class OutputUserLoginSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField()
+    first_name = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'token']
+        fields = ['id', 'email', 'token', 'first_name']
 
     def get_token(self, obj):
         return self.context.get('token')
+
+    def get_first_name(self, obj):
+        return obj.profile.first_name
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
