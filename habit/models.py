@@ -16,20 +16,7 @@ class Habit(BaseModel):
     score = models.PositiveIntegerField(default=1)
     recurrence_seconds = models.IntegerField()
     duration_seconds = models.IntegerField(default=0)
-
-    # class Meta:
-    #     abstract = True
-
-
-# class SingleHabit(Habit):
-#     reminder_time = models.DateTimeField()
-#     instances = GenericRelation('HabitInstance', related_query_name='single_habits')
-
-
-# class RecurringHabit(Habit):
-#     recurrence_seconds = models.IntegerField()
-#     duration_seconds = models.IntegerField(default=0)
-#     instances = GenericRelation('HabitInstance', related_query_name='recurring_habits')
+    notif_body = models.TextField(null=True, blank=True)
 
 
 class HabitInstance(BaseModel):
@@ -84,6 +71,7 @@ class Reminder(BaseModel):
     description = models.TextField(null=True, blank=True)
     reminder_time = models.DateTimeField()
     celery_task_id = models.CharField(max_length=200, blank=True, null=True)
+    notif_body = models.TextField(null=True, blank=True)
 
 
 class PushNotificationToken(models.Model):

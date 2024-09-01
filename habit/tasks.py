@@ -82,7 +82,7 @@ def send_reminder_notification(reminder_instance):
     try:
         user = reminder_instance.user_creator
         title = f'یادآوری {reminder_instance.name}'
-        body = f'دوست عزیز! الان زمان رسیدگی به این یادآوری است.'
+        body = f'{reminder_instance.notif_body}'
         access_token = generate_firebase_auth_key()
         target_browser = PushNotificationToken.objects.get(owner=user)
         fcm_token = target_browser.fcm_token
@@ -95,7 +95,7 @@ def send_habit_notification(habit_instance):
     try:
         user = habit_instance.user
         title = f'عادت {habit_instance.habit.name}'
-        body = f'دوست عزیز! الان زمان رسیدگی به این عادت است.'
+        body = f'{habit_instance.habit.notif_body}'
         access_token = generate_firebase_auth_key()
         target_browser = PushNotificationToken.objects.get(owner=user)
         fcm_token = target_browser.fcm_token
