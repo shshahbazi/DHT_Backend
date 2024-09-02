@@ -3,7 +3,8 @@ from django.urls import path
 from habit.views import WorkSessionStartApi, WorkSessionEndApi, EndHabitInstanceApi, \
     CreateRecurringHabitApi, RecurringHabitDetailApi, UserHabitsListApi, AddToDoItemApi, \
     ToDoItemDetailApi, GetToDoListApi, SubmitUserHabitSuggestionApi, CreateReminderApi, ReminderDetailApi, \
-    UserReminderListApi, CreateFCMToken, TodayUserHabitsListApi, MonthlyHabitHistoryReportView, DailyHabitReportAPIView
+    UserReminderListApi, CreateFCMToken, TodayUserHabitsListApi, MonthlyHabitHistoryReportView, DailyHabitReportAPIView, \
+    WeeklyHabitReportAPIView
 
 urlpatterns = [
     path('start-work/', WorkSessionStartApi.as_view(), name='start_work'),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('fcm/', CreateFCMToken.as_view(), name=''),
 
     path('report/monthly/', MonthlyHabitHistoryReportView.as_view(), name='monthly_habit_report'),
-    path('report/daily/', DailyHabitReportAPIView.as_view(), name='daily_habit_report')
+    path('report/daily/', DailyHabitReportAPIView.as_view(), name='daily_habit_report'),
+    path('report/weekly/', WeeklyHabitReportAPIView.as_view(), name='weekly_habit_report')
 
 ]

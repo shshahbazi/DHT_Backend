@@ -363,3 +363,36 @@ class DailyHabitReportAPIView(APIView):
             })
 
         return Response(habit_data)
+
+
+class WeeklyHabitReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        today = timezone.now().date()
+
+        # Adjust start_of_week to the most recent Saturday
+        start_of_week = today - timedelta(days=today.weekday() + 2 if today.weekday() != 4 else 6)
+
+        week_data = []
+        for _ in range(5):
+            end_of_week = start_of_week + timedelta(days=6)
+            instances = HabitInstance.objects.filter(
+                user=user,
+                reminder_time__date__range=[start_of_week, end_of_week]
+            )
+            total_habits = instances.count()
+            done_habits = instances.filter(status='DONE').count()
+            completion_rate = (done_habits / total_habits) * 100 if total_habits > 0 else 0
+
+            week_data.append({
+                'start_of_week': start_of_week,
+                'end_of_week': end_of_week,
+                'progress': completion_rate,
+            })
+
+            # Move to the previous week (Saturday)
+            start_of_week -= timedelta(weeks=1)
+
+        return Response(week_data)
