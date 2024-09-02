@@ -421,4 +421,33 @@ class DailyWorkReportAPIView(APIView):
         return Response(daily_work_hours)
 
 
+class WeeklyWorkReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        today = timezone.now().date()
+
+        # Adjust start_of_week to the most recent Saturday
+        start_of_week = today - timedelta(days=today.weekday() + 2 if today.weekday() != 4 else 6)
+
+        weekly_work_hours = []
+        for _ in range(5):
+            end_of_week = start_of_week + timedelta(days=6)
+            sessions = WorkSession.objects.filter(
+                user=user,
+                start_time__date__range=[start_of_week, end_of_week]
+            )
+            total_hours = sum([(session.end_time - session.start_time).total_seconds() / 3600 for session in sessions if
+                               session.end_time])
+
+            weekly_work_hours.append({
+                'start_of_week': start_of_week,
+                'end_of_week': end_of_week,
+                'work_hours': total_hours,
+            })
+
+            # Move to the previous week
+            start_of_week -= timedelta(weeks=1)
+
+        return Response(weekly_work_hours)
