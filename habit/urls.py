@@ -4,7 +4,7 @@ from habit.views import WorkSessionStartApi, WorkSessionEndApi, EndHabitInstance
     CreateRecurringHabitApi, RecurringHabitDetailApi, UserHabitsListApi, AddToDoItemApi, \
     ToDoItemDetailApi, GetToDoListApi, SubmitUserHabitSuggestionApi, CreateReminderApi, ReminderDetailApi, \
     UserReminderListApi, CreateFCMToken, TodayUserHabitsListApi, MonthlyHabitHistoryReportView, DailyHabitReportAPIView, \
-    WeeklyHabitReportAPIView
+    WeeklyHabitReportAPIView, DailyWorkReportAPIView
 
 urlpatterns = [
     path('start-work/', WorkSessionStartApi.as_view(), name='start_work'),
@@ -31,6 +31,7 @@ urlpatterns = [
 
     path('report/monthly/', MonthlyHabitHistoryReportView.as_view(), name='monthly_habit_report'),
     path('report/daily/', DailyHabitReportAPIView.as_view(), name='daily_habit_report'),
-    path('report/weekly/', WeeklyHabitReportAPIView.as_view(), name='weekly_habit_report')
+    path('report/weekly/', WeeklyHabitReportAPIView.as_view(), name='weekly_habit_report'),
+    path('work-report/daily/', DailyWorkReportAPIView.as_view(), name='daily_work_report')
 
 ]

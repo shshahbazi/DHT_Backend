@@ -396,3 +396,29 @@ class WeeklyHabitReportAPIView(APIView):
             start_of_week -= timedelta(weeks=1)
 
         return Response(week_data)
+
+
+class DailyWorkReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        today = timezone.now().date()
+
+        # Calculate work hours for each of the last 7 days
+        daily_work_hours = []
+        for i in reversed(range(7)):
+            day = today - timedelta(days=i)
+            sessions = WorkSession.objects.filter(user=user, start_time__date=day)
+            total_hours = sum([(session.end_time - session.start_time).total_seconds() / 3600 for session in sessions if
+                               session.end_time])
+
+            daily_work_hours.append({
+                'date': day,
+                'work_hours': total_hours,
+            })
+
+        return Response(daily_work_hours)
+
+
+
