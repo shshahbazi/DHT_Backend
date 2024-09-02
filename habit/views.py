@@ -341,3 +341,25 @@ class MonthlyHabitHistoryReportView(APIView):
             progress_report.append({"date": single_date, "progress": progress})
 
         return Response(progress_report)
+
+
+class DailyHabitReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        today = timezone.now().date()
+        last_7_days = [today - timedelta(days=i) for i in reversed(range(7))]
+
+        habit_data = []
+        for day in last_7_days:
+            instances = HabitInstance.objects.filter(user=user, reminder_time__date=day)
+            total_habits = instances.count()
+            done_habits = instances.filter(status='DONE').count()
+            completion_rate = (done_habits / total_habits) * 100 if total_habits > 0 else 0
+            habit_data.append({
+                'date': day,
+                'progress': completion_rate,
+            })
+
+        return Response(habit_data)
