@@ -98,7 +98,6 @@ class InputToDoItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['list']
 
     def validate(self, attrs):
-        print(attrs)
         user = self.context['request'].user
         todo_list = ToDoList.objects.filter(user=user).first()
 

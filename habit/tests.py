@@ -4,7 +4,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from habit.models import WorkSession, Habit
+from habit.models import WorkSession, Habit, HabitInstance, ToDoList, ToDoItem
 from user.models import CustomUser
 
 
@@ -50,3 +50,27 @@ class HabitTests(APITestCase):
         response = self.client.delete(reverse('recurring_habit', kwargs={'habit_id': habit.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(Habit.objects.filter(id=habit.id).exists())
+
+
+class ToDoListTests(APITestCase):
+
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(email='test@example.com', password='password123')
+        self.todo_list = ToDoList.objects.get(user=self.user)
+        self.client.force_authenticate(user=self.user)
+
+    def test_add_todo_item(self):
+        data = {
+            "title": "Test ToDo",
+            "description": "Test Description",
+            "deadline": timezone.now() + timezone.timedelta(days=1)
+        }
+        response = self.client.post(reverse('add_todo_item'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(ToDoItem.objects.filter(title="Test ToDo", list=self.todo_list).exists())
+
+    def test_view_todo_item(self):
+        todo_item = ToDoItem.objects.create(title="Test ToDo", list=self.todo_list)
+        response = self.client.get(reverse('todo_item-detail', kwargs={'pk': todo_item.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "Test ToDo")
