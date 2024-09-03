@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from scoring.models import UserScore, Feature
+from scoring.models import UserScore, Feature, PurchasedFeature
 from user.models import CustomUser
 
 
@@ -48,3 +48,21 @@ class FeatureTests(APITestCase):
         response = self.client.get(reverse('feature-detail', kwargs={'pk': self.feature.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], "Test Feature")
+
+
+class PurchaseFeatureTests(APITestCase):
+
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(email='test2@example.com', password='password123')
+        self.feature = Feature.objects.create(name="Test Feature", type="habit_limit", cost=5, habit_increase_amount=5)
+        self.client.force_authenticate(user=self.user)
+        self.user_score = UserScore.objects.get(user=self.user)
+        self.user_score.score = 100
+        self.user_score.save()
+
+    def test_purchase_feature_insufficient_score(self):
+        self.user_score.score = 30
+        self.user_score.save()
+        response = self.client.get(reverse('purchase-feature', kwargs={'pk': self.feature.id}))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(PurchasedFeature.objects.filter(user=self.user, feature=self.feature).exists())
