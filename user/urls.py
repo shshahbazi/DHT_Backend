@@ -7,5 +7,5 @@ urlpatterns = [
     path('login/verify-otp/', VerifyOTPLogin.as_view(), name='verify-otp'),
     path('logout/', LogOutApi.as_view(), name='logout'),
     path('profile/', GetProfileDetails.as_view(), name='profile-detail'),
-    path('profile/picture/', UpdateProfilePicture.as_view(), name='')
+    path('profile/picture/', UpdateProfilePicture.as_view(), name='profile-picture')
 ]
