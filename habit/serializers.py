@@ -90,27 +90,6 @@ class HabitInstanceSerializer(serializers.ModelSerializer):
         model = HabitInstance
         fields = '__all__'
 
-    # def get_habit_detail(self, obj):
-    #     model_class = obj.content_type.model_class()
-    #     if model_class == SingleHabit:
-    #         return SingleHabitSerializer(obj.habit).data
-    #     elif model_class == RecurringHabit:
-    #         return RecurringHabitSerializer(obj.habit).data
-    #     return None
-
-
-# class HabitListSerializer(serializers.Serializer):
-#     id = serializers.IntegerField()
-#     name = serializers.CharField(max_length=200)
-#     is_active = serializers.BooleanField()
-#     habit_type = serializers.SerializerMethodField()
-#
-#     def get_habit_type(self, obj):
-#         if isinstance(obj, SingleHabit):
-#             return "single"
-#         elif isinstance(obj, RecurringHabit):
-#             return "recurring"
-
 
 class InputToDoItemSerializer(serializers.ModelSerializer):
     class Meta:
