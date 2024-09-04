@@ -311,32 +311,40 @@ class MonthlyHabitHistoryReportView(APIView):
         first_day_of_month = first_day_of_month_jalali.todate()
         last_day_of_month = last_day_of_month_jalali.todate()
 
+        valid_days = (single_date for single_date in
+                      (first_day_of_month + timedelta(n) for n in
+                       range((last_day_of_month - first_day_of_month).days + 1))
+                      if single_date < today)
+
         # Check if the progress for each of the days in the current Jalali month is already calculated
-        cached_progress = DailyProgress.objects.filter(user=user, date__range=[first_day_of_month, last_day_of_month])
+        cached_progress = DailyProgress.objects.filter(user=user,
+                                                       date__range=[first_day_of_month, today - timedelta(days=1)])
         cached_progress_dict = {dp.date: dp.progress for dp in cached_progress}
 
         progress_report = []
-
         for single_date in (first_day_of_month + timedelta(n) for n in
                             range((last_day_of_month - first_day_of_month).days + 1)):
-            if single_date in cached_progress_dict:
-                # Use cached progress
-                progress = cached_progress_dict[single_date]
-            else:
-                # Calculate progress for this date
-                habit_instances = HabitInstance.objects.filter(
-                    user=user, reminder_time__date=single_date
-                )
-                done_count = habit_instances.filter(status="DONE").count()
-                total_count = habit_instances.count()
-
-                if total_count > 0:
-                    progress = (done_count / total_count) * 100
+            if single_date < today:
+                if single_date in cached_progress_dict:
+                    # Use cached progress
+                    progress = cached_progress_dict[single_date]
                 else:
-                    progress = 0
+                    # Calculate progress for this date
+                    habit_instances = HabitInstance.objects.filter(
+                        user=user, reminder_time__date=single_date
+                    )
+                    done_count = habit_instances.filter(status="DONE").count()
+                    total_count = habit_instances.count()
 
-                # Save the progress for this date
-                DailyProgress.objects.create(user=user, date=single_date, progress=progress)
+                    if total_count > 0:
+                        progress = (done_count / total_count) * 100
+                    else:
+                        progress = 0
+
+                    # Save the progress for this date
+                    DailyProgress.objects.create(user=user, date=single_date, progress=progress)
+            else:
+                progress = 0
 
             progress_report.append({"date": single_date, "progress": progress})
 
