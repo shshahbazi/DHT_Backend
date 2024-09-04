@@ -64,12 +64,11 @@ def send_push_notification(auth_token, fcm_token, title, body, habit_id=None):
     payload = json.dumps({
         "message": {
             "token": f'{fcm_token}',
-            "notification": {
+            "data": {
+                "habit_id": f'{habit_id}',
                 "title": f'{title}',
                 "body": f'{body}',
-            },
-            "data": {
-                "habit_id": f'{habit_id}'
+                "click_action": "/homepage",
             },
         }
     })
