@@ -58,15 +58,18 @@ def generate_firebase_auth_key():
     return access_token
 
 
-def send_push_notification(auth_token, fcm_token, title, body):
+def send_push_notification(auth_token, fcm_token, title, body, habit_id=None):
     url = "https://fcm.googleapis.com/v1/projects/doost-8726b/messages:send"
 
     payload = json.dumps({
         "message": {
             "token": f'{fcm_token}',
-            "data": {
+            "notification": {
                 "title": f'{title}',
-                "body": f'{body}'
+                "body": f'{body}',
+            },
+            "data": {
+                "habit_id": f'{habit_id}'
             },
         }
     })
@@ -76,6 +79,7 @@ def send_push_notification(auth_token, fcm_token, title, body):
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
+    print(response.content)
 
 
 def send_reminder_notification(reminder_instance):
@@ -99,6 +103,6 @@ def send_habit_notification(habit_instance):
         access_token = generate_firebase_auth_key()
         target_browser = PushNotificationToken.objects.get(owner=user)
         fcm_token = target_browser.fcm_token
-        send_push_notification(access_token, fcm_token, title, body)
+        send_push_notification(access_token, fcm_token, title, body, habit_instance.habit.id)
     except Exception as e:
         raise exceptions.APIException(f'An error occurred while sending notification: {e}')
