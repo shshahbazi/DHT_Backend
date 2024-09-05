@@ -58,12 +58,12 @@ def generate_firebase_auth_key():
     return access_token
 
 
-def send_push_notification(auth_token, fcm_token, title, body, habit_id=None):
+def send_push_notification(auth_token, token, title, body, habit_id=None):
     url = "https://fcm.googleapis.com/v1/projects/doost-8726b/messages:send"
 
     payload = json.dumps({
         "message": {
-            "token": f'{fcm_token}',
+            "token": f'{token.fcm_token}',
             "data": {
                 "habit_id": f'{habit_id}',
                 "title": f'{title}',
@@ -76,8 +76,14 @@ def send_push_notification(auth_token, fcm_token, title, body, habit_id=None):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {auth_token}'
     }
+    print(payload)
 
     response = requests.request("POST", url, headers=headers, data=payload)
+    if response.status_code != 200:
+        error_data = response.json()
+        if 'error' in error_data and error_data['error']['details'][0]['errorCode'] == 'UNREGISTERED':
+            token.delete()
+
     print(response.content)
 
 
@@ -87,9 +93,9 @@ def send_reminder_notification(reminder_instance):
         title = f'یادآوری {reminder_instance.name}'
         body = f'{reminder_instance.notif_body}'
         access_token = generate_firebase_auth_key()
-        target_browser = PushNotificationToken.objects.get(owner=user)
-        fcm_token = target_browser.fcm_token
-        send_push_notification(access_token, fcm_token, title, body)
+        target_browsers = PushNotificationToken.objects.filter(owner=user)
+        for fcm_token in target_browsers:
+            send_push_notification(access_token, fcm_token, title, body)
     except Exception as e:
         raise exceptions.APIException(f'An error occurred while sending notification: {e}')
 
@@ -100,8 +106,8 @@ def send_habit_notification(habit_instance):
         title = f'عادت {habit_instance.habit.name}'
         body = f'{habit_instance.habit.notif_body}'
         access_token = generate_firebase_auth_key()
-        target_browser = PushNotificationToken.objects.get(owner=user)
-        fcm_token = target_browser.fcm_token
-        send_push_notification(access_token, fcm_token, title, body, habit_instance.habit.id)
+        target_browsers = PushNotificationToken.objects.filter(owner=user)
+        for fcm_token in target_browsers:
+            send_push_notification(access_token, fcm_token, title, body, habit_instance.habit.id)
     except Exception as e:
         raise exceptions.APIException(f'An error occurred while sending notification: {e}')
