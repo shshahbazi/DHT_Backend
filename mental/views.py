@@ -29,12 +29,19 @@ class MoodDistributionApiView(APIView):
 
     @swagger_auto_schema(responses={200: None}, tags=['MoodTracker'])
     def get(self, request):
+        mood_names = {5: 'thrilled',
+                      4: 'happy',
+                      3: 'neutral',
+                      2: 'sad',
+                      1: 'verySad'}
         user = request.user
         end_date = timezone.now()
         start_date = end_date - timezone.timedelta(days=10)
 
         mood_counts = DailyMood.objects.filter(user=user, created_at__gte=start_date) \
             .values('mood').annotate(count=Count('mood'))
+
+        mood_list = []
 
         mood_dict = {mood: 0 for mood in range(1, 6)}  # 1 تا 5
 
@@ -47,4 +54,8 @@ class MoodDistributionApiView(APIView):
             for mood, count in mood_dict.items()
         }
 
-        return Response(mood_percentages, status=status.HTTP_200_OK)
+        for key, value in mood_percentages.items():
+            mood_data = {"name": f'{mood_names[key]}', "value": value}
+            mood_list.append(mood_data)
+
+        return Response(mood_list, status=status.HTTP_200_OK)
