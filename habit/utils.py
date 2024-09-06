@@ -12,7 +12,7 @@ from habit.models import Habit, HabitInstance
 
 
 def create_periodic_task_instance(user, task):
-    reminder_time = timezone.now() + timedelta(seconds=task.recurrence_seconds + task.duration_seconds)
+    reminder_time = timezone.now() + timedelta(seconds=task.recurrence_seconds)
 
     habit_instance = HabitInstance.objects.create(
         user=user,
