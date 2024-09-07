@@ -34,8 +34,15 @@ jobs:
         python manage.py makemigrations
         python manage.py migrate
 
-    - name: Run Tests
+    - name: Run Tests and Generate XML Report
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
       run: |
-        python manage.py test
+        python manage.py test --verbosity=2 --parallel=4 --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner --junit-xml=report.xml
+
+    - name: Upload Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        name: Django Tests
+        path: report.xml
+        reporter: junit
