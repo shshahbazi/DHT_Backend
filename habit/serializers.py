@@ -127,3 +127,9 @@ class PushNotificationTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = PushNotificationToken
         fields = '__all__'
+
+
+class EndToDoItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ToDoItem
+        fields = ['done']

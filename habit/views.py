@@ -13,7 +13,7 @@ from common.permissions import IsRecurringHabitCreator, IsReminderCreator
 from habit.models import WorkSession, Habit, HabitInstance, ToDoItem, Reminder, PushNotificationToken, DailyProgress
 from habit.serializers import WorkSessionStartSerializer, ChangeHabitInstanceStatusSerializer, HabitInstanceSerializer, \
     RecurringHabitSerializer, ToDoItemSerializer, InputToDoItemSerializer, \
-    UserHabitSuggestionSerializer, ReminderSerializer, PushNotificationTokenSerializer
+    UserHabitSuggestionSerializer, ReminderSerializer, PushNotificationTokenSerializer, EndToDoItemSerializer
 from habit.utils import create_periodic_task_instance, delete_recurring_habit_instances, create_reminder_celery_task, \
     update_reminder_task, delete_reminder_task
 
@@ -459,3 +459,18 @@ class WeeklyWorkReportAPIView(APIView):
             start_of_week -= timedelta(weeks=1)
 
         return Response(weekly_work_hours)
+
+
+class EndToDoItemApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=EndToDoItemSerializer(), responses={200: ToDoItemSerializer()}, tags=['ToDoList'])
+    def post(self, request, pk):
+        user = request.user
+        item = ToDoItem.objects.get(pk=pk)
+        serializer = EndToDoItemSerializer(data=request.data, instance=item)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        output_serializer = ToDoItemSerializer(instance=serializer.instance)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
