@@ -38,7 +38,7 @@ jobs:
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
       run: |
-        python manage.py test --verbosity=2 --parallel=4 --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner --junit-xml=report.xml
+        python manage.py test --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner --verbosity=2 --output-file=report.xml
 
     - name: Upload Test Report
       uses: dorny/test-reporter@v1
