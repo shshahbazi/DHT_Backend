@@ -34,16 +34,16 @@ jobs:
         python manage.py makemigrations
         python manage.py migrate
 
-    - name: Run Tests and Generate XML Report
+    - name: Test with pytest
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      run: |
-        mkdir -p test-reports
-        python manage.py test --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner --verbosity=2 --output-dir=test-reports
+      run: pytest --junit-xml=test-results.xml
 
-    - name: Upload Test Report
-      uses: dorny/test-reporter@v1
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
       with:
-        name: Django Tests
-        path: test-reports/*.xml
-        reporter: junit
+        files: |
+          test-results.xml
+          test-results/**/*.xml
+          test-results/**/*.json
