@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.12']
 
     steps:
     - uses: actions/checkout@v3
@@ -37,7 +37,8 @@ jobs:
     - name: Test with pytest
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      run: pytest --junit-xml=test-results.xml
+      run: |
+        pytest --junit-xml=test-results.xml --maxfail=1 --disable-warnings -q
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
